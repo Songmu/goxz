@@ -2,6 +2,7 @@ package goxz
 
 import (
 	"flag"
+	"go/build"
 	"io"
 	"io/ioutil"
 	"log"
@@ -41,6 +42,7 @@ type goxz struct {
 	work                                  bool
 	pkgs                                  []string
 
+	absPkgs   []string
 	platforms []*platform
 	projDir   string
 	workDir   string
@@ -133,6 +135,8 @@ func (gx *goxz) init() error {
 		gx.name = filepath.Base(gx.projDir)
 	}
 
+	// TODO: cleanup destination
+
 	if gx.os == "" {
 		gx.os = "linux darwin windows"
 	}
@@ -141,7 +145,29 @@ func (gx *goxz) init() error {
 	}
 	var err error
 	gx.platforms, err = resolvePlatforms(gx.os, gx.arch)
-	return err
+	if err != nil {
+		return err
+	}
+
+	gx.absPkgs = make([]string, len(gx.pkgs))
+	for i, pkg := range gx.pkgs {
+		if strings.HasPrefix(pkg, ".") {
+			absPath := filepath.Clean(filepath.Join(gx.projDir, pkg))
+			for _, gopath := range filepath.SplitList(build.Default.GOPATH) {
+				gosrc := filepath.Join(filepath.Clean(gopath), "src")
+				if strings.HasPrefix(absPath, gosrc) {
+					p, err := filepath.Rel(gosrc, absPath)
+					if err != nil {
+						return err
+					}
+					pkg = p
+					break
+				}
+			}
+		}
+		gx.absPkgs[i] = pkg
+	}
+	return nil
 }
 
 var separateReg = regexp.MustCompile(`\s*(?:\s+|,)\s*`)
@@ -184,10 +210,10 @@ func (gx *goxz) builders() []*builder {
 			output:       gx.output,
 			buildLdFlags: gx.buildLdFlags,
 			buildTags:    gx.buildTags,
-			pkgs:         gx.pkgs,
+			pkgs:         gx.absPkgs,
 			zipAlways:    gx.zipAlways,
 			projDir:      gx.projDir,
-			workDir:      gx.workDir,
+			workDirBase:  gx.workDir,
 		}
 	}
 	return builders
