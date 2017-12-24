@@ -149,25 +149,8 @@ func (gx *goxz) init() error {
 		return err
 	}
 
-	gx.absPkgs = make([]string, len(gx.pkgs))
-	for i, pkg := range gx.pkgs {
-		if strings.HasPrefix(pkg, ".") {
-			absPath := filepath.Clean(filepath.Join(gx.projDir, pkg))
-			for _, gopath := range filepath.SplitList(build.Default.GOPATH) {
-				gosrc := filepath.Join(filepath.Clean(gopath), "src")
-				if strings.HasPrefix(absPath, gosrc) {
-					p, err := filepath.Rel(gosrc, absPath)
-					if err != nil {
-						return err
-					}
-					pkg = p
-					break
-				}
-			}
-		}
-		gx.absPkgs[i] = pkg
-	}
-	return nil
+	gx.absPkgs, err = goAbsPkgs(gx.pkgs, gx.projDir)
+	return err
 }
 
 var separateReg = regexp.MustCompile(`\s*(?:\s+|,)\s*`)
@@ -198,6 +181,31 @@ func resolvePlatforms(os, arch string) ([]*platform, error) {
 		}
 	}
 	return uniqPlatforms, nil
+}
+
+func goAbsPkgs(pkgs []string, projDir string) ([]string, error) {
+	var gosrcs []string
+	for _, gopath := range filepath.SplitList(build.Default.GOPATH) {
+		gosrcs = append(gosrcs, filepath.Join(filepath.Clean(gopath), "src"))
+	}
+	stuff := make([]string, len(pkgs))
+	for i, pkg := range pkgs {
+		if strings.HasPrefix(pkg, ".") {
+			absPath := filepath.Clean(filepath.Join(projDir, pkg))
+			for _, gosrc := range gosrcs {
+				if strings.HasPrefix(absPath, gosrc) {
+					p, err := filepath.Rel(gosrc, absPath)
+					if err != nil {
+						return nil, err
+					}
+					pkg = p
+					break
+				}
+			}
+		}
+		stuff[i] = pkg
+	}
+	return stuff, nil
 }
 
 func (gx *goxz) builders() []*builder {
