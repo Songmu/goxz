@@ -29,21 +29,27 @@ func (bdr *builder) build() (string, error) {
 		return "", err
 	}
 
-	cmdArgs := []string{"build"}
-	if bdr.output != "" {
-		cmdArgs = append(cmdArgs, "-o", bdr.output)
-	}
-	if bdr.buildLdFlags != "" {
-		cmdArgs = append(cmdArgs, "-ldflags", bdr.buildLdFlags)
-	}
-	if bdr.buildTags != "" {
-		cmdArgs = append(cmdArgs, "-tags", bdr.buildTags)
-	}
-	cmdArgs = append(cmdArgs, bdr.pkgs...) // XXX should be built per package
+	for _, pkg := range bdr.pkgs {
+		cmdArgs := []string{"build"}
+		if bdr.output != "" {
+			cmdArgs = append(cmdArgs, "-o", bdr.output)
+		}
+		if bdr.buildLdFlags != "" {
+			cmdArgs = append(cmdArgs, "-ldflags", bdr.buildLdFlags)
+		}
+		if bdr.buildTags != "" {
+			cmdArgs = append(cmdArgs, "-tags", bdr.buildTags)
+		}
+		cmdArgs = append(cmdArgs, pkg)
 
-	cmd := exec.Command("go", cmdArgs...)
-	cmd.Dir = workDir
-	cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
-	err := cmd.Run()
-	return "", err
+		cmd := exec.Command("go", cmdArgs...)
+		cmd.Dir = workDir
+		cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
+		err := cmd.Run()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return "", nil
 }
