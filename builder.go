@@ -6,6 +6,7 @@ type builder struct {
 	output, buildLdFlags, buildTags string
 	pkgs                            []string
 	projDir                         string
+	workDir                         string
 	zipAlways                       bool
 }
 

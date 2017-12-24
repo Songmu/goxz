@@ -74,7 +74,19 @@ func (cl *cli) run(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(gx.workDir)
+	defer func() {
+		if !gx.work {
+			os.RemoveAll(gx.workDir)
+		}
+	}()
+	if gx.work {
+		log.Printf("working dir: %s\n", gx.workDir)
+	}
+
+	for _, bdr := range gx.builders() {
+		// XXX use goroutine and sync.ErrorGroup
+		_, _ = bdr.build()
+	}
 
 	return nil
 }
@@ -175,6 +187,7 @@ func (gx *goxz) builders() []*builder {
 			pkgs:         gx.pkgs,
 			zipAlways:    gx.zipAlways,
 			projDir:      gx.projDir,
+			workDir:      gx.workDir,
 		}
 	}
 	return builders
