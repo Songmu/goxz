@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -37,7 +38,9 @@ type goxz struct {
 	dest, output, buildLdFlags, buildTags string
 	zip                                   bool
 	pkgs                                  []string
-	platforms                             []platform
+
+	workDir   string
+	platforms []platform
 }
 
 func (cl *cli) run(args []string) error {
@@ -83,6 +86,21 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 }
 
 func (gx *goxz) init() error {
+	if gx.workDir == "" {
+		dir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		gx.workDir, err = filepath.Abs(dir)
+		if err != nil {
+			return err
+		}
+	}
+
+	if gx.name == "" {
+		gx.name = filepath.Base(gx.workDir)
+	}
+
 	if gx.os == "" {
 		gx.os = "linux darwin windows"
 	}
