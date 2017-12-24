@@ -59,5 +59,7 @@ func (bdr *builder) build() (string, error) {
 		}
 	}
 
+	// TODO: archiving
+
 	return "", nil
 }
