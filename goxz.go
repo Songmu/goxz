@@ -32,9 +32,12 @@ func Run(args []string) int {
 }
 
 type goxz struct {
-	version, dest, output, os, arch, buildLdFlags, buildTags string
-	pkgs                                                     []string
-	platforms                                                []platform
+	os, arch                              string
+	name, version                         string
+	dest, output, buildLdFlags, buildTags string
+	zip                                   bool
+	pkgs                                  []string
+	platforms                             []platform
 }
 
 func (cl *cli) run(args []string) error {
@@ -58,13 +61,15 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	fs := flag.NewFlagSet("goxz", flag.ContinueOnError)
 	fs.SetOutput(cl.errStream)
 
+	fs.StringVar(&gx.name, "n", "", "Application name. By default this is the directory name.")
+	fs.StringVar(&gx.dest, "d", "goxz", "Destination directory")
 	fs.StringVar(&gx.version, "pv", "", "Package version")
-	fs.StringVar(&gx.dest, "d", "dist", "Destination directory")
 	fs.StringVar(&gx.output, "o", "", "output")
 	fs.StringVar(&gx.os, "os", "", "Specify OS (default is 'linux darwin windows')")
 	fs.StringVar(&gx.arch, "arch", "", "Specify Arch (default is 'amd64')")
 	fs.StringVar(&gx.buildLdFlags, "build-ldflags", "", "arguments to pass on each go tool link invocation")
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
+	fs.BoolVar(&gx.zip, "zip", false, "zip always")
 
 	err := fs.Parse(args)
 	if err != nil {
