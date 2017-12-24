@@ -15,6 +15,7 @@ type builder struct {
 	projDir                         string
 	workDirBase                     string
 	zipAlways                       bool
+	resources                       []string
 }
 
 func (bdr *builder) build() (string, error) {

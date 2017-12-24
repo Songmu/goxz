@@ -46,6 +46,7 @@ type goxz struct {
 	platforms []*platform
 	projDir   string
 	workDir   string
+	resources []string
 }
 
 func (cl *cli) run(args []string) error {
@@ -148,6 +149,10 @@ func (gx *goxz) init() error {
 	if err != nil {
 		return err
 	}
+	gx.resources, err = gatherResources(gx.projDir)
+	if err != nil {
+		return err
+	}
 
 	gx.absPkgs, err = goAbsPkgs(gx.pkgs, gx.projDir)
 	return err
@@ -208,6 +213,26 @@ func goAbsPkgs(pkgs []string, projDir string) ([]string, error) {
 	return stuff, nil
 }
 
+var resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install)`)
+
+func gatherResources(dir string) ([]string, error) {
+	var ret []string
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range files {
+		if !f.Mode().IsRegular() {
+			continue
+		}
+		n := f.Name()
+		if resourceReg.MatchString(n) && !strings.HasSuffix(n, ".go") {
+			ret = append(ret, filepath.Join(dir, n))
+		}
+	}
+	return ret, nil
+}
+
 func (gx *goxz) builders() []*builder {
 	builders := make([]*builder, len(gx.platforms))
 	for i, pf := range gx.platforms {
@@ -222,6 +247,7 @@ func (gx *goxz) builders() []*builder {
 			zipAlways:    gx.zipAlways,
 			projDir:      gx.projDir,
 			workDirBase:  gx.workDir,
+			resources:    gx.resources,
 		}
 	}
 	return builders
