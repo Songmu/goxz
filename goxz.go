@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 )
 
 type cli struct {
@@ -76,34 +77,44 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	return gx, nil
 }
 
-var separateReg = regexp.MustCompile(`\s*,?\s*`)
-
 func (gx *goxz) init() error {
-	platforms := []platform{}
 	if gx.os == "" {
 		gx.os = "linux darwin windows"
 	}
 	if gx.arch == "" {
 		gx.arch = "amd64"
 	}
+	var err error
+	gx.platforms, err = resolvePlatforms(gx.os, gx.arch)
+	return err
+}
 
-	osTargets := separateReg.Split(gx.os, -1)
-	archTargets := separateReg.Split(gx.os, -1)
+var separateReg = regexp.MustCompile(`\s*(?:\s+|,)\s*`)
+
+func resolvePlatforms(os, arch string) ([]platform, error) {
+	platforms := []platform{}
+	osTargets := separateReg.Split(os, -1)
+	archTargets := separateReg.Split(arch, -1)
 	for _, os := range osTargets {
+		if strings.TrimSpace(os) == "" {
+			continue
+		}
 		for _, arch := range archTargets {
+			if strings.TrimSpace(arch) == "" {
+				continue
+			}
 			platforms = append(platforms, platform{os: os, arch: arch})
 		}
 	}
-
-	// uniq and assign
+	uniqPlatforms := []platform{}
 	seen := make(map[string]struct{})
 	for _, pf := range platforms {
 		key := pf.os + ":" + pf.arch
 		_, ok := seen[key]
 		if !ok {
 			seen[key] = struct{}{}
-			gx.platforms = append(gx.platforms, pf)
+			uniqPlatforms = append(uniqPlatforms, pf)
 		}
 	}
-	return nil
+	return uniqPlatforms, nil
 }
