@@ -53,9 +53,13 @@ func TestResolvePlatforms(t *testing.T) {
 		},
 	}
 	for _, tc := range testCases {
-		out, err := resolvePlatforms(tc.inOS, tc.inArch)
+		o, err := resolvePlatforms(tc.inOS, tc.inArch)
 		if err != nil {
 			t.Errorf("error should be nil but: %s", err)
+		}
+		out := []platform{}
+		for _, pf := range o {
+			out = append(out, *pf)
 		}
 		if !reflect.DeepEqual(out, tc.expect) {
 			t.Errorf("wrong resolvePlatform (%s)\n  out: %v\nexpect: %v", tc.name, out, tc.expect)

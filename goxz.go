@@ -36,11 +36,12 @@ type goxz struct {
 	os, arch                              string
 	name, version                         string
 	dest, output, buildLdFlags, buildTags string
-	zip                                   bool
+	zipAlways                             bool
 	pkgs                                  []string
 
+	platforms []*platform
+	projDir   string
 	workDir   string
-	platforms []platform
 }
 
 func (cl *cli) run(args []string) error {
@@ -56,6 +57,8 @@ func (cl *cli) run(args []string) error {
 	if err != nil {
 		return err
 	}
+	// err = gx.prepareWorkdir()
+
 	return nil
 }
 
@@ -72,7 +75,7 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	fs.StringVar(&gx.arch, "arch", "", "Specify Arch (default is 'amd64')")
 	fs.StringVar(&gx.buildLdFlags, "build-ldflags", "", "arguments to pass on each go tool link invocation")
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
-	fs.BoolVar(&gx.zip, "zip", false, "zip always")
+	fs.BoolVar(&gx.zipAlways, "zip", false, "zip always")
 
 	err := fs.Parse(args)
 	if err != nil {
@@ -86,19 +89,19 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 }
 
 func (gx *goxz) init() error {
-	if gx.workDir == "" {
+	if gx.projDir == "" {
 		dir, err := os.Getwd()
 		if err != nil {
 			return err
 		}
-		gx.workDir, err = filepath.Abs(dir)
+		gx.projDir, err = filepath.Abs(dir)
 		if err != nil {
 			return err
 		}
 	}
 
 	if gx.name == "" {
-		gx.name = filepath.Base(gx.workDir)
+		gx.name = filepath.Base(gx.projDir)
 	}
 
 	if gx.os == "" {
@@ -114,8 +117,8 @@ func (gx *goxz) init() error {
 
 var separateReg = regexp.MustCompile(`\s*(?:\s+|,)\s*`)
 
-func resolvePlatforms(os, arch string) ([]platform, error) {
-	platforms := []platform{}
+func resolvePlatforms(os, arch string) ([]*platform, error) {
+	platforms := []*platform{}
 	osTargets := separateReg.Split(os, -1)
 	archTargets := separateReg.Split(arch, -1)
 	for _, os := range osTargets {
@@ -126,10 +129,10 @@ func resolvePlatforms(os, arch string) ([]platform, error) {
 			if strings.TrimSpace(arch) == "" {
 				continue
 			}
-			platforms = append(platforms, platform{os: os, arch: arch})
+			platforms = append(platforms, &platform{os: os, arch: arch})
 		}
 	}
-	uniqPlatforms := []platform{}
+	uniqPlatforms := []*platform{}
 	seen := make(map[string]struct{})
 	for _, pf := range platforms {
 		key := pf.os + ":" + pf.arch
@@ -140,4 +143,22 @@ func resolvePlatforms(os, arch string) ([]platform, error) {
 		}
 	}
 	return uniqPlatforms, nil
+}
+
+func (gx *goxz) builders() []*builder {
+	builders := make([]*builder, len(gx.platforms))
+	for i, pf := range gx.platforms {
+		builders[i] = &builder{
+			platform:     pf,
+			name:         gx.name,
+			version:      gx.version,
+			output:       gx.output,
+			buildLdFlags: gx.buildLdFlags,
+			buildTags:    gx.buildTags,
+			pkgs:         gx.pkgs,
+			zipAlways:    gx.zipAlways,
+			projDir:      gx.projDir,
+		}
+	}
+	return builders
 }
