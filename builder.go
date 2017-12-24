@@ -2,13 +2,14 @@ package goxz
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
 type builder struct {
-	platform                        *platform
 	name, version                   string
+	platform                        *platform
 	output, buildLdFlags, buildTags string
 	pkgs                            []string
 	projDir                         string
@@ -28,5 +29,21 @@ func (bdr *builder) build() (string, error) {
 		return "", err
 	}
 
-	return "", nil
+	cmdArgs := []string{"build"}
+	if bdr.output != "" {
+		cmdArgs = append(cmdArgs, "-o", bdr.output)
+	}
+	if bdr.buildLdFlags != "" {
+		cmdArgs = append(cmdArgs, "-ldflags", bdr.buildLdFlags)
+	}
+	if bdr.buildTags != "" {
+		cmdArgs = append(cmdArgs, "-tags", bdr.buildTags)
+	}
+	cmdArgs = append(cmdArgs, bdr.pkgs...)
+
+	cmd := exec.Command("go", cmdArgs...)
+	cmd.Dir = workDir
+	cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
+	err := cmd.Run()
+	return "", err
 }
