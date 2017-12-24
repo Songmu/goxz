@@ -3,6 +3,7 @@ package goxz
 import (
 	"flag"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -37,6 +38,7 @@ type goxz struct {
 	name, version                         string
 	dest, output, buildLdFlags, buildTags string
 	zipAlways                             bool
+	work                                  bool
 	pkgs                                  []string
 
 	platforms []*platform
@@ -53,11 +55,26 @@ func (cl *cli) run(args []string) error {
 	if err != nil {
 		return err
 	}
+	if gx.projDir != "" {
+		prev, err := filepath.Abs(".")
+		if err != nil {
+			return err
+		}
+		err = os.Chdir(gx.projDir)
+		if err != nil {
+			return err
+		}
+		defer os.Chdir(prev)
+	}
 	err = gx.init()
 	if err != nil {
 		return err
 	}
-	// err = gx.prepareWorkdir()
+	err = gx.prepareWorkdir()
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(gx.workDir)
 
 	return nil
 }
@@ -77,6 +94,9 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
 	fs.BoolVar(&gx.zipAlways, "zip", false, "zip always")
 
+	fs.StringVar(&gx.projDir, "C", "", "[for debug] change directory")
+	fs.BoolVar(&gx.work, "work", false, "[for debug] print the name of the temporary work directory and do not delete it when exiting.")
+
 	err := fs.Parse(args)
 	if err != nil {
 		return nil, err
@@ -90,11 +110,8 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 
 func (gx *goxz) init() error {
 	if gx.projDir == "" {
-		dir, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-		gx.projDir, err = filepath.Abs(dir)
+		var err error
+		gx.projDir, err = filepath.Abs(".")
 		if err != nil {
 			return err
 		}
@@ -161,4 +178,10 @@ func (gx *goxz) builders() []*builder {
 		}
 	}
 	return builders
+}
+
+func (gx *goxz) prepareWorkdir() error {
+	tmpd, err := ioutil.TempDir(gx.projDir, ".goxz-")
+	gx.workDir = tmpd
+	return err
 }
