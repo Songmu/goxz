@@ -39,7 +39,7 @@ func (bdr *builder) build() (string, error) {
 	if bdr.buildTags != "" {
 		cmdArgs = append(cmdArgs, "-tags", bdr.buildTags)
 	}
-	cmdArgs = append(cmdArgs, bdr.pkgs...)
+	cmdArgs = append(cmdArgs, bdr.pkgs...) // XXX should be built per package
 
 	cmd := exec.Command("go", cmdArgs...)
 	cmd.Dir = workDir
