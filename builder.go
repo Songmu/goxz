@@ -31,13 +31,6 @@ func (bdr *builder) build() (string, error) {
 		return "", err
 	}
 
-	for _, rc := range bdr.resources {
-		dest := filepath.Join(workDir, filepath.Base(rc))
-		if err := os.Link(rc, dest); err != nil {
-			return "", err
-		}
-	}
-
 	for _, pkg := range bdr.pkgs {
 		cmdArgs := []string{"build"}
 		if bdr.output != "" {
@@ -56,6 +49,14 @@ func (bdr *builder) build() (string, error) {
 		cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
 		err := cmd.Run()
 		if err != nil {
+			return "", err
+		}
+	}
+	// TODO: build check. If the binaries are under workDir or not.
+
+	for _, rc := range bdr.resources {
+		dest := filepath.Join(workDir, filepath.Base(rc))
+		if err := os.Link(rc, dest); err != nil {
 			return "", err
 		}
 	}
