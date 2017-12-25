@@ -282,7 +282,6 @@ func (gx *goxz) builders() []*builder {
 			buildTags:    gx.buildTags,
 			pkgs:         gx.absPkgs,
 			zipAlways:    gx.zipAlways,
-			projDir:      gx.projDir,
 			workDirBase:  gx.workDir,
 			resources:    gx.resources,
 		}

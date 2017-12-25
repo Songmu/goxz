@@ -14,7 +14,6 @@ type builder struct {
 	platform                        *platform
 	output, buildLdFlags, buildTags string
 	pkgs                            []string
-	projDir                         string
 	workDirBase                     string
 	zipAlways                       bool
 	resources                       []string
