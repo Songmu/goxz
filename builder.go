@@ -1,6 +1,7 @@
 package goxz
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -57,7 +58,14 @@ func (bdr *builder) build() (string, error) {
 				pkg, bdr.platform.os, bdr.platform.arch, string(bs))
 		}
 	}
-	// TODO: build check. If the binaries are under workDir or not.
+	files, err := ioutil.ReadDir(workDir)
+	if err != nil {
+		return "", err
+	}
+	if len(files) == 0 {
+		return "", errors.Errorf("No binaries are built from [%s] for %s/%s",
+			strings.Join(bdr.pkgs, " "), bdr.platform.os, bdr.platform.arch)
+	}
 
 	for _, rc := range bdr.resources {
 		dest := filepath.Join(workDir, filepath.Base(rc))
@@ -73,7 +81,7 @@ func (bdr *builder) build() (string, error) {
 		archiveFilePath = workDir + ".tar.gz"
 	}
 	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
-	err := archiveFn(archiveFilePath, []string{workDir})
+	err = archiveFn(archiveFilePath, []string{workDir})
 	if err != nil {
 		return "", nil
 	}

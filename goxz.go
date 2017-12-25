@@ -122,11 +122,7 @@ func (gx *goxz) init() error {
 	if err != nil {
 		return err
 	}
-	if len(gx.absPkgs) == 1 {
-		log.Printf("Package to build: %s\n", gx.absPkgs[0])
-	} else {
-		log.Printf("Packages to build:\n  - %s\n", strings.Join(gx.absPkgs, "\n  - "))
-	}
+	log.Printf("Package to build: [%s]\n", strings.Join(gx.absPkgs, " "))
 	return nil
 }
 
