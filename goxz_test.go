@@ -36,6 +36,12 @@ func TestResolvePlatforms(t *testing.T) {
 			expect: []platform{},
 		},
 		{
+			name:   "empty Arch",
+			inOS:   "linux",
+			inArch: "",
+			expect: []platform{},
+		},
+		{
 			name:   "mixed separators",
 			inOS:   "linux ,windows darwin ",
 			inArch: "amd64  386,     arm",

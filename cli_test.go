@@ -41,13 +41,13 @@ func TestCliRun(t *testing.T) {
 			files: []string{"abc_linux_amd64.tar.gz"},
 		},
 		{
-			name:  "output option",
-			input: []string{"-o=abc", "-os=freebsd", "./testdata/hello"},
-			files: []string{"goxz_freebsd_amd64.tar.gz"},
+			name:  "output option with version",
+			input: []string{"-o=abc", "-C=.", "-pv=0.1.1", "-os=freebsd", "./testdata/hello"},
+			files: []string{"goxz_0.1.1_freebsd_amd64.tar.gz"},
 		},
 		{
 			name:   "[error] no resulting object",
-			input:  []string{"."},
+			input:  []string{}, // same as []string{"."}
 			errStr: "No binaries are built",
 		},
 		{
@@ -57,7 +57,7 @@ func TestCliRun(t *testing.T) {
 		},
 		{
 			name:   "[error] package not exists",
-			input:  []string{"./testdata/hello___"},
+			input:  []string{"-work", "./testdata/hello___"},
 			errStr: "can't load package",
 		},
 	}
@@ -93,7 +93,9 @@ func TestCliRun(t *testing.T) {
 			}
 			var outs []string
 			for _, f := range files {
-				outs = append(outs, f.Name())
+				if !f.IsDir() {
+					outs = append(outs, f.Name())
+				}
 			}
 			sort.Strings(tc.files)
 			sort.Strings(outs)
