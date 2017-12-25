@@ -31,12 +31,13 @@ func Run(args []string) int {
 }
 
 type goxz struct {
-	os, arch                              string
-	name, version                         string
-	dest, output, buildLdFlags, buildTags string
-	zipAlways                             bool
-	pkgs                                  []string
-	work                                  bool
+	os, arch                        string
+	name, version                   string
+	dest                            string
+	output, buildLdFlags, buildTags string
+	zipAlways                       bool
+	pkgs                            []string
+	work                            bool
 
 	absPkgs   []string
 	platforms []*platform
@@ -85,7 +86,7 @@ func (gx *goxz) init() error {
 		gx.name = filepath.Base(gx.projDir)
 	}
 
-	err := setupDest(gx.getDest())
+	err := os.MkdirAll(gx.getDest(), 0755)
 	if err != nil {
 		return err
 	}
@@ -146,32 +147,6 @@ func (gx *goxz) getDest() string {
 		gx.dest = "goxz"
 	}
 	return gx.dest
-}
-
-func setupDest(dir string) error {
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
-	}
-	files, err := ioutil.ReadDir(dir)
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		if !f.Mode().IsRegular() {
-			continue
-		}
-		n := f.Name()
-		if strings.HasSuffix(n, ".zip") || strings.HasSuffix(n, ".tar.gz") {
-			fpath := filepath.Join(dir, n)
-			// XXX I don't know removing them is better or not. option is better?
-			log.Printf("removing %q", fpath)
-			err := os.Remove(fpath)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 func goAbsPkgs(pkgs []string, projDir string) ([]string, error) {
