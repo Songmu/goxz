@@ -217,7 +217,13 @@ func (gx *goxz) buildAll() error {
 			if err != nil {
 				return err
 			}
-			return os.Rename(archivePath, filepath.Join(gx.dest, filepath.Base(archivePath)))
+			installPath := filepath.Join(gx.dest, filepath.Base(archivePath))
+			err = os.Rename(archivePath, installPath)
+			if err != nil {
+				return err
+			}
+			log.Printf("Artifact archived to %s\n", installPath)
+			return nil
 		})
 	}
 	return eg.Wait()

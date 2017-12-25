@@ -1,6 +1,7 @@
 package goxz
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -32,6 +33,7 @@ func (bdr *builder) build() (string, error) {
 	}
 
 	for _, pkg := range bdr.pkgs {
+		log.Printf("Building %s for %s/%s\n", pkg, bdr.platform.os, bdr.platform.arch)
 		cmdArgs := []string{"build"}
 		if bdr.output != "" {
 			cmdArgs = append(cmdArgs, "-o", bdr.output)
@@ -67,6 +69,7 @@ func (bdr *builder) build() (string, error) {
 		archiveFn = archiver.TarGz.Make
 		archiveFilePath = workDir + ".tar.gz"
 	}
+	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
 	err := archiveFn(archiveFilePath, []string{workDir})
 	if err != nil {
 		return "", nil
