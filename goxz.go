@@ -136,15 +136,19 @@ func (gx *goxz) init() error {
 		gx.name = filepath.Base(gx.projDir)
 	}
 
-	// TODO: cleanup destination
+	err := setupDest(gx.getDest())
+	if err != nil {
+		return err
+	}
 
+	// TODO: implement build constraints
+	// fill the defaults
 	if gx.os == "" {
 		gx.os = "linux darwin windows"
 	}
 	if gx.arch == "" {
 		gx.arch = "amd64"
 	}
-	var err error
 	gx.platforms, err = resolvePlatforms(gx.os, gx.arch)
 	if err != nil {
 		return err
@@ -186,6 +190,39 @@ func resolvePlatforms(os, arch string) ([]*platform, error) {
 		}
 	}
 	return uniqPlatforms, nil
+}
+
+func (gx *goxz) getDest() string {
+	if gx.dest == "" {
+		gx.dest = "goxz"
+	}
+	return gx.dest
+}
+
+func setupDest(dir string) error {
+	err := os.Mkdir(dir, 0777)
+	if err == nil || !os.IsExist(err) {
+		return err
+	}
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if !f.Mode().IsRegular() {
+			continue
+		}
+		n := f.Name()
+		if strings.HasPrefix(n, ".zip") || strings.HasPrefix(n, ".tar.gz") {
+			fpath := filepath.Join(dir, n)
+			log.Printf("removing %q", fpath)
+			err := os.Remove(fpath)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func goAbsPkgs(pkgs []string, projDir string) ([]string, error) {
