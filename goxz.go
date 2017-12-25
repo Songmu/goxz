@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -73,6 +74,13 @@ func (gx *goxz) run() error {
 
 func (gx *goxz) init() error {
 	log.Println("Initializing...")
+	if len(gx.pkgs) == 0 {
+		gx.pkgs = append(gx.pkgs, ".")
+	}
+	if len(gx.pkgs) > 1 && gx.output != "" {
+		return errors.New("When building multiple packages, output(`-o`) doesn't work")
+	}
+
 	if gx.projDir == "" {
 		var err error
 		gx.projDir, err = filepath.Abs(".")

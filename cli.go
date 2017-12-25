@@ -36,8 +36,8 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	fs.StringVar(&gx.buildLdFlags, "build-ldflags", "", "arguments to pass on each go tool link invocation")
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
 	fs.BoolVar(&gx.zipAlways, "zip", false, "zip always")
+	fs.StringVar(&gx.projDir, "C", "", "specify the project directory")
 
-	fs.StringVar(&gx.projDir, "C", "", "[for debug] change directory")
 	fs.BoolVar(&gx.work, "work", false, "[for debug] print the name of the temporary work directory and do not delete it when exiting.")
 
 	err := fs.Parse(args)
@@ -45,8 +45,5 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 		return nil, err
 	}
 	gx.pkgs = fs.Args()
-	if len(gx.pkgs) == 0 {
-		gx.pkgs = append(gx.pkgs, ".")
-	}
 	return gx, nil
 }
