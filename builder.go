@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/mholt/archiver"
 )
 
 type builder struct {
@@ -59,7 +61,10 @@ func (bdr *builder) build() (string, error) {
 		}
 	}
 
-	// TODO: archiving
-
-	return "", nil
+	archiveFilePath := filepath.Join(bdr.workDirBase, dirname+".zip")
+	err := archiver.Zip.Make(archiveFilePath, []string{workDir})
+	if err != nil {
+		return "", nil
+	}
+	return archiveFilePath, nil
 }
