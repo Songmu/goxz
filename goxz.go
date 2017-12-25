@@ -68,6 +68,7 @@ func (gx *goxz) run() error {
 }
 
 func (gx *goxz) init() error {
+	log.Println("Initializing...")
 	if gx.projDir == "" {
 		var err error
 		gx.projDir, err = filepath.Abs(".")
@@ -107,9 +108,22 @@ func (gx *goxz) init() error {
 	if err != nil {
 		return err
 	}
+	rBaseNames := make([]string, len(gx.resources))
+	for i, r := range gx.resources {
+		rBaseNames[i], _ = filepath.Rel(gx.projDir, r)
+	}
+	log.Printf("Resources to include: [%s]\n", strings.Join(rBaseNames, " "))
 
 	gx.absPkgs, err = goAbsPkgs(gx.pkgs, gx.projDir)
-	return err
+	if err != nil {
+		return err
+	}
+	if len(gx.absPkgs) == 1 {
+		log.Printf("Package to build: %s\n", gx.absPkgs[0])
+	} else {
+		log.Printf("Packages to build:\n  - %s\n", strings.Join(gx.absPkgs, "\n  - "))
+	}
+	return nil
 }
 
 var separateReg = regexp.MustCompile(`\s*(?:\s+|,)\s*`)
