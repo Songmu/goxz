@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func TestRun_help(t *testing.T) {
+	i := Run([]string{"-h"})
+	if i != exitCodeErr {
+		t.Errorf("somthing went wrong")
+	}
+}
+
 func TestResolvePlatforms(t *testing.T) {
 	testCases := []struct {
 		name   string
