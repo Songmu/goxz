@@ -15,7 +15,6 @@ import (
 
 const (
 	exitCodeOK = iota
-	exitFlagErr
 	exitCodeErr
 )
 
