@@ -36,6 +36,8 @@ func (cl *cli) run(args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// XXX it may be better that works in destination directory
 	err = gx.prepareWorkdir()
 	if err != nil {
 		return err
@@ -49,12 +51,7 @@ func (cl *cli) run(args []string) error {
 		log.Printf("working dir: %s\n", gx.workDir)
 	}
 
-	for _, bdr := range gx.builders() {
-		// XXX use goroutine and sync.ErrorGroup
-		_, _ = bdr.build()
-	}
-
-	return nil
+	return gx.buildAll()
 }
 
 func (cl *cli) parseArgs(args []string) (*goxz, error) {

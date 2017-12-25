@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -189,6 +191,21 @@ func gatherResources(dir string) ([]string, error) {
 		}
 	}
 	return ret, nil
+}
+
+func (gx *goxz) buildAll() error {
+	eg := errgroup.Group{}
+	for _, bdr := range gx.builders() {
+		bdr := bdr
+		eg.Go(func() error {
+			archivePath, err := bdr.build()
+			if err != nil {
+				return err
+			}
+			return os.Rename(archivePath, filepath.Join(gx.dest, filepath.Base(archivePath)))
+		})
+	}
+	return eg.Wait()
 }
 
 func (gx *goxz) builders() []*builder {
