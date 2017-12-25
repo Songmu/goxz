@@ -23,7 +23,7 @@ func Run(args []string) int {
 	err := (&cli{outStream: os.Stdout, errStream: os.Stderr}).run(args)
 	if err != nil {
 		if err != flag.ErrHelp {
-			log.Println(err)
+			log.Printf("[!!ERROR!!] %s\n", err)
 		}
 		return exitCodeErr
 	}
@@ -64,7 +64,11 @@ func (gx *goxz) run() error {
 	if gx.work {
 		log.Printf("working dir: %s\n", gx.workDir)
 	}
-	return gx.buildAll()
+	err = gx.buildAll()
+	if err == nil {
+		log.Println("Success!")
+	}
+	return err
 }
 
 func (gx *goxz) init() error {
