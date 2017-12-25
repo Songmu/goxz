@@ -1,58 +1,66 @@
 ## goxz
 
-Goのツールをパラレルクロスビルドして必要なファイルを抽出してarchiveに詰めてくれる君
+Just do cross building and archiving go tools conventionally
 
-- goxcから必要機能を抜き出して軽量にしたもの
-- 古いGoのケアも不要
-- デフォルトで良い感じになっているように
+- provides `goxc` subset
+  - only provides cross building and archiving
+- no older Go support
+- no complicated configuration and behaivors
+  - convention over configuration
 
 ## usage
 
 ```console
-% gozx -d ./dist \
-    -build-ldflags=... -os=linux,darwin,windows -arch=amd64 \
-    ./cmd/{{exename}} [...]
+# in your repository
+% gozx -v 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
 
-%  tree dist
-dist/
-├── {{Package}}_{{Version}}_{{GOOS}}_{{GOARCH}}.zip
+# archives are built into `./goxz` directory
+%  tree ./goxz
+goxz/
+├── yourapp_0.0.1_darwin_amd64.zip
 └── ...
 ```
 
-## 同梱物
-- `LICENSE(?:.*)`
-- `README(?:.*)`
-- `INSTALL(?:.*)`
-- `CREDIT(?:.*)`
+## Included resources
 
-## ファイル名の仕様
-{{Package}}_{{Version}}_{{OS}}_{{Arch}}.zip
+following files are included to archives automatically.
 
-- Package(AppName?)はデフォルトでリポジトリ名
-  - 複数実行ファイルを同梱するかもしれないので
-- {{Version}} は入れるか否か
-  - 入れるほうが好みだけど
-  - 入れるのがデフォルトで、入れないオプションつくる？
-    - バージョン指定ない場合は入れないとか(goxcもそうか)
-- linuxのみ(BSD系も?)tar.gzにするのがデフォルトで、zipに統一するオプションを別途作るのが良い？
-  - goxcはデフォではlinuxのみtar.gz
-- テンプレート記法(最初はなくて良さそう)
-  - goxc: {{.ExeName}}_{{.Version}}_{{.Os}}_{{.Arch}}{{.Ext}}
-- 同梱物指定 (FileGatheringRule)
-  - ゆくゆく
+- `LICENSE*`
+- `README*`
+- `INSTALL*`
+- `CREDIT*`
 
-## その他オプション
-- `os` and `arch`
-   - osはdefault linux/darwin/win のみ(案)
-   - archはdefault arm64 のみ(案)
-- `-bc`
-   - os/arch と bc それぞれは独立して動くで良い？
-     - 良さそう
-   - bc指定がされていて、 os/arch 設定が明にされていない場合は、デフォルトビルドはおこなわない
-- `-pv` でバージョン指定
-- `-build-ldflags` 実装は必須
-- `-build-tags` はあっても良いかもなぁ
-- `-o` オプションは作ってもよい？
-  - あっても良いけど複数コマンドビルドとの食い合せが悪い
-  - `go build` と同じ挙動で良さそうか (同じファイルを上書きする)
+Custumizable file gathering rules may be provided in future.
 
+## Archive naming specification
+
+`{{Package}}_{{Version}}_{{OS}}_{{Arch}}.{{Ext}}`
+or
+`{{Package}}_{{OS}}_{{Arch}}.{{Ext}}`
+
+- `{{Package}}`
+  - directory name of the project by default
+  - you can specify it with `-n` option
+- `{{Version}}`
+  - When the version is specified by `-pv` option, that is contained in archive name
+- `{{Ext}}`
+  - `.zip` is by default on "windows" and "darwin", `.tar.gz` is by default on other os.
+  - use `-z` option to use zip always to compress.
+- No file naming notations are available yet
+  - ref. goxc: `{{.ExeName}}_{{.Version}}_{{.Os}}_{{.Arch}}{{.Ext}}`
+
+## Options
+- `os`
+   - os: linux,darwin and windows by default
+- `arch`
+   - arc: arm64 only by default
+- `-pv` for version specification
+- `-build-ldflags` / `-build-tags`
+- `-o` output filename
+  - not compatible with multiple package building
+- `-build` (not implemented)
+   - specify build constarints
+   - os/arch と build はそれぞれは独立して動くで良い？
+     - 良さそう(ダメかも)
+	 - もしくは両方指定できない？
+   - buildが指定がされていて、 os/arch 設定が明にされていない場合は、デフォルトビルドはおこなわない
