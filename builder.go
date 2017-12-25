@@ -61,8 +61,13 @@ func (bdr *builder) build() (string, error) {
 		}
 	}
 
-	archiveFilePath := filepath.Join(bdr.workDirBase, dirname+".zip")
-	err := archiver.Zip.Make(archiveFilePath, []string{workDir})
+	archiveFn := archiver.Zip.Make
+	archiveFilePath := workDir + ".zip"
+	if !bdr.zipAlways && bdr.platform.os != "windows" && bdr.platform.os != "darwin" {
+		archiveFn = archiver.TarGz.Make
+		archiveFilePath = workDir + ".tar.gz"
+	}
+	err := archiveFn(archiveFilePath, []string{workDir})
 	if err != nil {
 		return "", nil
 	}
