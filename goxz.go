@@ -123,8 +123,7 @@ func (gx *goxz) getDest() string {
 }
 
 func setupDest(dir string) error {
-	err := os.Mkdir(dir, 0777)
-	if err == nil || !os.IsExist(err) {
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 	files, err := ioutil.ReadDir(dir)
@@ -136,8 +135,9 @@ func setupDest(dir string) error {
 			continue
 		}
 		n := f.Name()
-		if strings.HasPrefix(n, ".zip") || strings.HasPrefix(n, ".tar.gz") {
+		if strings.HasSuffix(n, ".zip") || strings.HasSuffix(n, ".tar.gz") {
 			fpath := filepath.Join(dir, n)
+			// XXX I don't know removing them is better or not. option is better?
 			log.Printf("removing %q", fpath)
 			err := os.Remove(fpath)
 			if err != nil {
