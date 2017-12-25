@@ -33,9 +33,10 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	fs.StringVar(&gx.output, "o", "", "output")
 	fs.StringVar(&gx.os, "os", "", "Specify OS (default is 'linux darwin windows')")
 	fs.StringVar(&gx.arch, "arch", "", "Specify Arch (default is 'amd64')")
+	// TODO: fs.StringVar(&gx.buildConstraints, "build", "", "Specify build constraints")
 	fs.StringVar(&gx.buildLdFlags, "build-ldflags", "", "arguments to pass on each go tool link invocation")
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
-	fs.BoolVar(&gx.zipAlways, "zip", false, "zip always")
+	fs.BoolVar(&gx.zipAlways, "z", false, "zip always")
 	fs.StringVar(&gx.projDir, "C", "", "specify the project directory")
 
 	fs.BoolVar(&gx.work, "work", false, "[for debug] print the name of the temporary work directory and do not delete it when exiting.")
