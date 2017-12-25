@@ -196,7 +196,7 @@ func goAbsPkgs(pkgs []string, projDir string) ([]string, error) {
 	return stuff, nil
 }
 
-var resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install)`)
+var resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install|changelog)`)
 
 func gatherResources(dir string) ([]string, error) {
 	var ret []string
