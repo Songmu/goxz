@@ -53,6 +53,12 @@ func (gx *goxz) init() error {
 		if err != nil {
 			return err
 		}
+	} else if !filepath.IsAbs(gx.projDir) {
+		p, err := filepath.Abs(gx.projDir)
+		if err != nil {
+			return err
+		}
+		gx.projDir = p
 	}
 
 	if gx.name == "" {

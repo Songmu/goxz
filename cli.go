@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 )
 
 type cli struct {
@@ -20,17 +19,6 @@ func (cl *cli) run(args []string) error {
 	gx, err := cl.parseArgs(args)
 	if err != nil {
 		return err
-	}
-	if gx.projDir != "" {
-		prev, err := filepath.Abs(".")
-		if err != nil {
-			return err
-		}
-		err = os.Chdir(gx.projDir)
-		if err != nil {
-			return err
-		}
-		defer os.Chdir(prev)
 	}
 	err = gx.init()
 	if err != nil {
