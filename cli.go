@@ -4,7 +4,6 @@ import (
 	"flag"
 	"io"
 	"log"
-	"os"
 )
 
 type cli struct {
@@ -20,25 +19,7 @@ func (cl *cli) run(args []string) error {
 	if err != nil {
 		return err
 	}
-	err = gx.init()
-	if err != nil {
-		return err
-	}
-
-	err = gx.prepareWorkdir()
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if !gx.work {
-			os.RemoveAll(gx.workDir)
-		}
-	}()
-	if gx.work {
-		log.Printf("working dir: %s\n", gx.workDir)
-	}
-
-	return gx.buildAll()
+	return gx.run()
 }
 
 func (cl *cli) parseArgs(args []string) (*goxz, error) {

@@ -46,6 +46,27 @@ type goxz struct {
 	resources []string
 }
 
+func (gx *goxz) run() error {
+	err := gx.init()
+	if err != nil {
+		return err
+	}
+
+	err = gx.prepareWorkdir()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if !gx.work {
+			os.RemoveAll(gx.workDir)
+		}
+	}()
+	if gx.work {
+		log.Printf("working dir: %s\n", gx.workDir)
+	}
+	return gx.buildAll()
+}
+
 func (gx *goxz) init() error {
 	if gx.projDir == "" {
 		var err error
