@@ -2,6 +2,7 @@ goxz
 =======
 
 [![Build Status](https://travis-ci.org/Songmu/goxz.png?branch=master)][travis]
+[![Coverage Status](https://coveralls.io/repos/Songmu/goxz/badge.png?branch=master)][coveralls]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![GoDoc](https://godoc.org/github.com/Songmu/goxz?status.svg)][godoc]
 
@@ -51,6 +52,7 @@ following files are included to archives automatically.
 - `README*`
 - `INSTALL*`
 - `CREDIT*`
+- `CHANGELOG*`
 
 Custumizable file gathering rules may be provided in future.
 
