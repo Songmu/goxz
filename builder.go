@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/mholt/archiver"
+	"github.com/pkg/errors"
 )
 
 type builder struct {
@@ -49,9 +50,11 @@ func (bdr *builder) build() (string, error) {
 		cmd := exec.Command("go", cmdArgs...)
 		cmd.Dir = workDir
 		cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
-		err := cmd.Run()
+		bs, err := cmd.CombinedOutput()
 		if err != nil {
-			return "", err
+			return "", errors.Wrapf(err,
+				"go build failed while building %s for %s/%s with following output:\n%s",
+				pkg, bdr.platform.os, bdr.platform.arch, string(bs))
 		}
 	}
 	// TODO: build check. If the binaries are under workDir or not.
