@@ -36,8 +36,8 @@ type goxz struct {
 	name, version                         string
 	dest, output, buildLdFlags, buildTags string
 	zipAlways                             bool
-	work                                  bool
 	pkgs                                  []string
+	work                                  bool
 
 	absPkgs   []string
 	platforms []*platform
@@ -228,7 +228,7 @@ func (gx *goxz) builders() []*builder {
 }
 
 func (gx *goxz) prepareWorkdir() error {
-	tmpd, err := ioutil.TempDir(gx.projDir, ".goxz-")
+	tmpd, err := ioutil.TempDir(gx.getDest(), ".goxz-")
 	gx.workDir = tmpd
 	return err
 }

@@ -37,7 +37,6 @@ func (cl *cli) run(args []string) error {
 		return err
 	}
 
-	// XXX it may be better that works in destination directory
 	err = gx.prepareWorkdir()
 	if err != nil {
 		return err
