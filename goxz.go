@@ -52,7 +52,7 @@ func (gx *goxz) run() error {
 		return err
 	}
 
-	err = gx.prepareWorkdir()
+	gx.workDir, err = ioutil.TempDir(gx.getDest(), ".goxz-")
 	if err != nil {
 		return err
 	}
@@ -246,10 +246,4 @@ func (gx *goxz) builders() []*builder {
 		}
 	}
 	return builders
-}
-
-func (gx *goxz) prepareWorkdir() error {
-	tmpd, err := ioutil.TempDir(gx.getDest(), ".goxz-")
-	gx.workDir = tmpd
-	return err
 }
