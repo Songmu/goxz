@@ -54,12 +54,13 @@ or
    - os: linux,darwin and windows by default
 - `arch`
    - arc: arm64 only by default
-- `-build` (not implemented)
-   - specify build constarints
-   - os/arch と build はそれぞれは独立して動くで良い？
-     - 良さそう(ダメかも)
-   - buildが指定がされていて、 os/arch 設定が明にされていない場合は、デフォルトビルドはおこなわない
 - `-pv` for version specification
 - `-build-ldflags` / `-build-tags`
 - `-o` output filename
   - not compatible with multiple package building
+- `-build` (not implemented)
+   - specify build constarints
+   - os/arch と build はそれぞれは独立して動くで良い？
+     - 良さそう(ダメかも)
+	 - もしくは両方指定できない？
+   - buildが指定がされていて、 os/arch 設定が明にされていない場合は、デフォルトビルドはおこなわない
