@@ -11,6 +11,8 @@ goxz
 [license]: https://github.com/Songmu/goxz/blob/master/LICENSE
 [godoc]: https://godoc.org/github.com/Songmu/goxz
 
+GO + X (crossbuild) + Z (zip)
+
 ## Description
 
 Just do cross building and archiving go tools conventionally
