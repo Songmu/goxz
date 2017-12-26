@@ -29,7 +29,9 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	fs := flag.NewFlagSet("goxz", flag.ContinueOnError)
 	fs.SetOutput(cl.errStream)
 	fs.Usage = func() {
-		fmt.Fprintf(cl.errStream, `goxz - Just do cross building and archiving go tools conventionally
+		fs.SetOutput(cl.outStream)
+		defer fs.SetOutput(cl.errStream)
+		fmt.Fprintf(cl.outStream, `goxz - Just do cross building and archiving go tools conventionally
 
 Version: %s (rev: %s/%s)
 
