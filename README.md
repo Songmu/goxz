@@ -37,7 +37,7 @@ Built binaries are available on gihub releases.
 
 ```console
 # in your repository
-% gozx -pv 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
+% goxz -pv 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
 
 # archives are built into `./goxz` directory by default (configurable by `-d` option)
 %  tree ./goxz

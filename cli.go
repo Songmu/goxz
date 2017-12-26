@@ -34,7 +34,7 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 Version: %s (rev: %s/%s)
 
 Synopsis:
-    %% gozx -v 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
+    %% goxz -v 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
 
 Options:
 `, version, revision, runtime.Version())

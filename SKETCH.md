@@ -12,7 +12,7 @@ Just do cross building and archiving go tools conventionally
 
 ```console
 # in your repository
-% gozx -v 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
+% goxz -v 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
 
 # archives are built into `./goxz` directory
 %  tree ./goxz
