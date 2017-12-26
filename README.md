@@ -37,9 +37,9 @@ Built binaries are available on gihub releases.
 
 ```console
 # in your repository
-% gozx -v 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
+% gozx -pv 0.0.1 -os=linux,darwin -arch=amd64 ./cmd/mytool [...]
 
-# archives are built into `./goxz` directory
+# archives are built into `./goxz` directory by default (configurable by `-d` option)
 %  tree ./goxz
 goxz/
 ├── yourapp_0.0.1_darwin_amd64.zip
@@ -77,14 +77,17 @@ or
 
 ## Options
 
+- `d` destination directory (`./goxz` by default)
 - `os`
    - os: linux,darwin and windows by default
 - `arch`
-   - arc: arm64 only by default
-- `-pv` for version specification
-- `-build-ldflags` / `-build-tags`
+   - arch: arm64 only by default
+- `-pv` for speicifing version (optional)
 - `-o` output filename
-  - not compatible with multiple package building
+  - not available with multiple package building
+- `-z` to use zip always to compless
+  - by default, zip is used on "windows and "darwin", tar.gz is used on other OS
+- `-build-ldflags` / `-build-tags`
 
 ## Author
 
