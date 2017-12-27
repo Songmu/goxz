@@ -77,11 +77,10 @@ or
 
 ## Options
 
-- `d` destination directory (`./goxz` by default)
-- `os`
-   - os: linux,darwin and windows by default
-- `arch`
-   - arch: arm64 only by default
+- `-d` destination directory (`./goxz` by default)
+- `-n` application name. by default the directory name is used.
+- `-os` linux,darwin and windows by default
+- `-arch`  arm64 only by default
 - `-pv` for speicifing version (optional)
 - `-o` output filename
   - not available with multiple package building

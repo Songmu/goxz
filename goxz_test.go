@@ -7,7 +7,7 @@ import (
 
 func TestRun_help(t *testing.T) {
 	i := Run([]string{"-h"})
-	if i != exitCodeErr {
+	if i != exitCodeOK {
 		t.Errorf("somthing went wrong")
 	}
 }

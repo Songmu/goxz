@@ -29,7 +29,9 @@ func (cl *cli) parseArgs(args []string) (*goxz, error) {
 	fs := flag.NewFlagSet("goxz", flag.ContinueOnError)
 	fs.SetOutput(cl.errStream)
 	fs.Usage = func() {
-		fmt.Fprintf(cl.errStream, `goxz - Just do cross building and archiving go tools conventionally
+		fs.SetOutput(cl.outStream)
+		defer fs.SetOutput(cl.errStream)
+		fmt.Fprintf(cl.outStream, `goxz - Just do cross building and archiving go tools conventionally
 
 Version: %s (rev: %s/%s)
 
@@ -47,7 +49,6 @@ Options:
 	fs.StringVar(&gx.output, "o", "", "output (optional)")
 	fs.StringVar(&gx.os, "os", "", "Specify OS (default is 'linux darwin windows')")
 	fs.StringVar(&gx.arch, "arch", "", "Specify Arch (default is 'amd64')")
-	// TODO: fs.StringVar(&gx.buildConstraints, "build", "", "Specify build constraints")
 	fs.StringVar(&gx.buildLdFlags, "build-ldflags", "", "arguments to pass on each go tool link invocation")
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
 	fs.BoolVar(&gx.zipAlways, "z", false, "zip always")
