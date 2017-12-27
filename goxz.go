@@ -105,7 +105,6 @@ func (gx *goxz) init() error {
 		return err
 	}
 
-	// TODO: implement build constraints
 	// fill the defaults
 	if gx.os == "" {
 		gx.os = "linux darwin windows"
