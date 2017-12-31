@@ -214,15 +214,7 @@ func (gx *goxz) gatherResources() ([]string, error) {
 		}
 		n := f.Name()
 		if resourceReg.MatchString(n) && !strings.HasSuffix(n, ".go") {
-			p := filepath.Join(dir, n)
-			if !filepath.IsAbs(p) {
-				var err error
-				p, err = filepath.Abs(p)
-				if err != nil {
-					return nil, err
-				}
-			}
-			ret = append(ret, p)
+			ret = append(ret, filepath.Join(dir, n))
 		}
 	}
 
