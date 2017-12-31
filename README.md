@@ -56,7 +56,7 @@ following files are included to archives automatically.
 - `CREDIT*`
 - `CHANGELOG*`
 
-Custumizable file gathering rules may be provided in future.
+You can specify additional resources by using `-include` option.
 
 ## Archive naming specification
 
@@ -86,6 +86,7 @@ or
   - not available with multiple package building
 - `-z` to use zip always to compless
   - by default, zip is used on "windows and "darwin", tar.gz is used on other OS
+- `-include` Include additional resources in archives
 - `-build-ldflags` / `-build-tags`
 
 ## Author
