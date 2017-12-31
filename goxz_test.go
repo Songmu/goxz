@@ -1,7 +1,9 @@
 package goxz
 
 import (
+	"path/filepath"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -77,5 +79,27 @@ func TestResolvePlatforms(t *testing.T) {
 		if !reflect.DeepEqual(out, tc.expect) {
 			t.Errorf("wrong resolvePlatform (%s)\n  out: %v\nexpect: %v", tc.name, out, tc.expect)
 		}
+	}
+}
+
+func TestGatherResources(t *testing.T) {
+	projDir, _ := filepath.Abs("./testdata")
+	gx := &goxz{
+		projDir: projDir,
+		include: "sample.*",
+	}
+	files, err := gx.gatherResources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := make([]string, len(files))
+	for i, r := range files {
+		out[i], _ = filepath.Rel(projDir, r)
+	}
+	expect := []string{"LICENSE.txt", "README.md", "sample.conf"}
+	sort.Strings(expect)
+	sort.Strings(out)
+	if !reflect.DeepEqual(out, expect) {
+		t.Errorf("something went wrong:\n  out: %v\nexpect: %v", out, expect)
 	}
 }
