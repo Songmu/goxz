@@ -36,6 +36,7 @@ type goxz struct {
 	os, arch                        string
 	name, version                   string
 	dest                            string
+	include                         string
 	output, buildLdFlags, buildTags string
 	zipAlways                       bool
 	pkgs                            []string
@@ -116,7 +117,8 @@ func (gx *goxz) init() error {
 	if err != nil {
 		return err
 	}
-	gx.resources, err = gatherResources(gx.projDir)
+
+	gx.resources, err = gx.gatherResources()
 	if err != nil {
 		return err
 	}
@@ -198,7 +200,9 @@ func goAbsPkgs(pkgs []string, projDir string) ([]string, error) {
 
 var resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install|changelog)`)
 
-func gatherResources(dir string) ([]string, error) {
+func (gx *goxz) gatherResources() ([]string, error) {
+	dir := gx.projDir
+
 	var ret []string
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
@@ -213,7 +217,39 @@ func gatherResources(dir string) ([]string, error) {
 			ret = append(ret, filepath.Join(dir, n))
 		}
 	}
-	return ret, nil
+
+	if gx.include != "" {
+		for _, inc := range separateReg.Split(gx.include, -1) {
+			if !filepath.IsAbs(inc) {
+				inc = filepath.Join(dir, inc)
+			}
+			files, err := filepath.Glob(inc)
+			if err != nil {
+				return nil, err
+			}
+			for _, f := range files {
+				if !filepath.IsAbs(f) {
+					var err error
+					f, err = filepath.Abs(f)
+					if err != nil {
+						return nil, err
+					}
+				}
+				ret = append(ret, f)
+			}
+		}
+	}
+
+	seen := make(map[string]struct{})
+	ret2 := make([]string, 0, len(ret))
+	for _, p := range ret {
+		_, ok := seen[p]
+		if !ok {
+			seen[p] = struct{}{}
+			ret2 = append(ret2, p)
+		}
+	}
+	return ret2, nil
 }
 
 func (gx *goxz) buildAll() error {
