@@ -30,8 +30,9 @@ build: deps
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
 
 crossbuild: devel-deps
-	goxz -pv=v$(shell gobump show -r) -build-ldflags=$(BUILD_LDFLAGS) \
-	  -d=./dist/v$(shell gobump show -r) ./cmd/goxz
+	$(eval ver = $(shell gobump show -r))
+	goxz -pv=v$(ver) -build-ldflags=$(BUILD_LDFLAGS) \
+	  -d=./dist/v$(ver) ./cmd/goxz
 
 release:
 	_tools/releng
