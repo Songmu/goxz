@@ -10,7 +10,7 @@ deps:
 	dep ensure
 
 devel-deps: deps
-	go get ${u} github.com/golang/lint/golint \
+	go get ${u} golang.org/x/lint/golint \
 	  github.com/mattn/goveralls              \
 	  github.com/motemen/gobump/cmd/gobump    \
 	  github.com/Songmu/goxz/cmd/goxz         \
