@@ -1,6 +1,8 @@
 package goxz
 
 import (
+	"compress/flate"
+	"compress/gzip"
 	"io/ioutil"
 	"log"
 	"os"
@@ -74,17 +76,25 @@ func (bdr *builder) build() (string, error) {
 		}
 	}
 
-	var arch archiver.Archiver
-	arch = archiver.DefaultZip
+	var arch archiver.Archiver = &archiver.Zip{
+		CompressionLevel:     flate.DefaultCompression,
+		MkdirAll:             true,
+		SelectiveCompression: true,
+	}
 	archiveFilePath := workDir + ".zip"
 	if !bdr.zipAlways && bdr.platform.os != "windows" && bdr.platform.os != "darwin" {
-		arch = archiver.DefaultTarGz
+		arch = &archiver.TarGz{
+			CompressionLevel: gzip.DefaultCompression,
+			Tar: &archiver.Tar{
+				MkdirAll: true,
+			},
+		}
 		archiveFilePath = workDir + ".tar.gz"
 	}
 	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
 	err = arch.Archive([]string{workDir}, archiveFilePath)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return archiveFilePath, nil
 }
