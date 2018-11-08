@@ -3,49 +3,98 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:5c1ef2b35731f69dbb50233d7f028c549a417bdf2127d2d420eedf50ff9a24e2"
   name = "github.com/dsnet/compress"
-  packages = [".","bzip2","bzip2/internal/sais","internal","internal/errors","internal/prefix"]
+  packages = [
+    ".",
+    "bzip2",
+    "bzip2/internal/sais",
+    "internal",
+    "internal/errors",
+    "internal/prefix",
+  ]
+  pruneopts = ""
   revision = "cc9eb1d7ad760af14e8f918698f745e80377af4f"
 
 [[projects]]
+  branch = "master"
+  digest = "1:2a5888946cdbc8aa360fd43301f9fc7869d663f60d5eedae7d4e6e5e4f06f2bf"
+  name = "github.com/golang/snappy"
+  packages = ["."]
+  pruneopts = ""
+  revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
+
+[[projects]]
+  digest = "1:904c49c248fe084bc9f938e119c9bf86234dbfeb96ff5aab27266eaa3e92d3ec"
   name = "github.com/mholt/archiver"
   packages = ["."]
-  revision = "cdc68dd1f170b8dfc1a0d2231b5bb0967ed67006"
-  version = "v2.0"
+  pruneopts = ""
+  revision = "edeadbb1a3884e1a487283bcb73e823333fd1a10"
+  version = "v3.0.0"
 
 [[projects]]
-  branch = "master"
+  digest = "1:b93a939355dc613ca1c23bf39f6d4c207da431a31dd8af001cc334ad24cab9d3"
   name = "github.com/nwaples/rardecode"
   packages = ["."]
-  revision = "e06696f847aeda6f39a8f0b7cdff193b7690aef6"
+  pruneopts = ""
+  revision = "cc3e4b2381762c56dbcdf9f93be03349a1dc1c14"
+  version = "v1.0.0"
 
 [[projects]]
+  digest = "1:b1df71d0b2287062b90c6b4c8d3c934440aa0d2eb201d03f22be0f045860b4aa"
+  name = "github.com/pierrec/lz4"
+  packages = [
+    ".",
+    "internal/xxh32",
+  ]
+  pruneopts = ""
+  revision = "635575b42742856941dbc767b44905bb9ba083f6"
+  version = "v2.0.7"
+
+[[projects]]
+  digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
   name = "github.com/pkg/errors"
   packages = ["."]
+  pruneopts = ""
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:3f86e5e877dde45a8c767ba92f1526b41d1daa756f07e217db3177d23c54bbc5"
   name = "github.com/ulikunitz/xz"
-  packages = [".","internal/hash","internal/xlog","lzma"]
-  revision = "0c6b41e72360850ca4f98dc341fd999726ea007f"
-  version = "v0.5.4"
+  packages = [
+    ".",
+    "internal/hash",
+    "internal/xlog",
+    "lzma",
+  ]
+  pruneopts = ""
+  revision = "590df8077fbcb06ad62d7714da06c00e5dd2316d"
+  version = "v0.5.5"
 
 [[projects]]
   branch = "master"
-  name = "golang.org/x/net"
-  packages = ["context"]
-  revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
+  digest = "1:5d5ea0c53c32b0465b910eb1d98b045c2f14c416880c54dd5356a1c6b4569041"
+  name = "github.com/xi2/xz"
+  packages = ["."]
+  pruneopts = ""
+  revision = "48954b6210f8d154cb5f8484d3a3e1f83489309e"
 
 [[projects]]
   branch = "master"
+  digest = "1:88ecca26e54f601a8733c9a31d9f0883b915216a177673f0467f6b864fd0d90f"
   name = "golang.org/x/sync"
   packages = ["errgroup"]
-  revision = "fd80eb99c8f653c847d294a001bdf2a3a6f768f5"
+  pruneopts = ""
+  revision = "42b317875d0fa942474b76e1b46a6060d720ae6e"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f9697c41ec8c35a269e2bfcfebcbbc2ecc8b3c674ef019d5d775a579547569f8"
+  input-imports = [
+    "github.com/mholt/archiver",
+    "github.com/pkg/errors",
+    "golang.org/x/sync/errgroup",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
