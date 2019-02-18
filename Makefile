@@ -26,13 +26,13 @@ lint: devel-deps
 	golint -set_exit_status
 
 cover: devel-deps
-	godzil release
+	goveralls
 
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
 
 bump: devel-deps
-	_tools/releng
+	godzil release
 
 crossbuild:
 	goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
