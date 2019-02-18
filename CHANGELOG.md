@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.0](https://github.com/Songmu/goxz/compare/v0.1.1...0.2.0) (2019-02-18)
+
+* introduce go modules [#7](https://github.com/Songmu/goxz/pull/7) ([Songmu](https://github.com/Songmu))
+
 ## [v0.1.1](https://github.com/Songmu/goxz/compare/v0.1.0...v0.1.1) (2018-11-09)
 
 * use github.com/mholt/archiver v3 [#6](https://github.com/Songmu/goxz/pull/6) ([astj](https://github.com/astj))
