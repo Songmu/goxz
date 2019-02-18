@@ -5,16 +5,17 @@ ifdef update
   u=-u
 endif
 
+export GO111MODULE=on
+
 deps:
-	go get ${u} github.com/golang/dep/cmd/dep
-	dep ensure
+	go get ${u} -d
 
 devel-deps: deps
-	go get ${u} golang.org/x/lint/golint \
-	  github.com/mattn/goveralls              \
-	  github.com/motemen/gobump/cmd/gobump    \
-	  github.com/Songmu/goxz/cmd/goxz         \
-	  github.com/Songmu/ghch/cmd/ghch         \
+	GO111MODULE=off go get ${u} \
+	  golang.org/x/lint/golint            \
+	  github.com/mattn/goveralls          \
+	  github.com/Songmu/goxz/cmd/goxz     \
+	  github.com/Songmu/godzil/cmd/godzil \
 	  github.com/tcnksm/ghr
 
 test: deps
@@ -25,7 +26,7 @@ lint: devel-deps
 	golint -set_exit_status
 
 cover: devel-deps
-	goveralls
+	godzil release
 
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
