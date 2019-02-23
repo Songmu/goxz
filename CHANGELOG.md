@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0](https://github.com/Songmu/goxz/compare/v0.1.1...0.2.0) (2019-02-18)
+## [v0.2.0](https://github.com/Songmu/goxz/compare/v0.1.1...v0.2.0) (2019-02-18)
 
 * introduce go modules [#7](https://github.com/Songmu/goxz/pull/7) ([Songmu](https://github.com/Songmu))
 
