@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.3.0](https://github.com/Songmu/goxz/compare/v0.2.0...v0.3.0) (2019-03-29)
+
+* update deps [#10](https://github.com/Songmu/goxz/pull/10) ([Songmu](https://github.com/Songmu))
+* To work outside GOPATH [#9](https://github.com/Songmu/goxz/pull/9) ([Songmu](https://github.com/Songmu))
+
 ## [v0.2.0](https://github.com/Songmu/goxz/compare/v0.1.1...v0.2.0) (2019-02-18)
 
 * introduce go modules [#7](https://github.com/Songmu/goxz/pull/7) ([Songmu](https://github.com/Songmu))
