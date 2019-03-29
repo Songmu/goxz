@@ -48,7 +48,7 @@ func TestCliRun(t *testing.T) {
 		{
 			name:   "[error] no resulting object",
 			input:  []string{}, // same as []string{"."}
-			errStr: "No binaries are built",
+			errStr: `can't build artifact for non main package: "goxz"`,
 		},
 		{
 			name:   "[error] multiple packages and -o flag are not compatible",

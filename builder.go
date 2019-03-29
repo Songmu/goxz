@@ -38,9 +38,24 @@ func (bdr *builder) build() (string, error) {
 
 	for _, pkg := range bdr.pkgs {
 		log.Printf("Building %s for %s/%s\n", pkg, bdr.platform.os, bdr.platform.arch)
+		bs, err := exec.Command("go", "list", "-f", "{{.Name}}", pkg).CombinedOutput()
+		if err != nil {
+			return "", errors.Errorf("go list failed with following output: %q", string(bs))
+		}
+		pkgName := strings.TrimSpace(string(bs))
+		if pkgName != "main" {
+			return "", errors.Errorf("can't build artifact for non main package: %q", pkgName)
+		}
 		output := bdr.output
 		if output == "" {
 			output = filepath.Base(pkg)
+			if output == "." {
+				wd, err := os.Getwd()
+				if err != nil {
+					return "", err
+				}
+				output = filepath.Base(wd)
+			}
 		}
 		cmdArgs := []string{"build", "-o", filepath.Join(workDir, output)}
 		if bdr.buildLdFlags != "" {
@@ -53,10 +68,10 @@ func (bdr *builder) build() (string, error) {
 
 		cmd := exec.Command("go", cmdArgs...)
 		cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
-		bs, err := cmd.CombinedOutput()
+		bs, err = cmd.CombinedOutput()
 		if err != nil {
 			return "", errors.Wrapf(err,
-				"go build failed while building %s for %s/%s with following output:\n%s",
+				"go build failed while building %q for %s/%s with following output:\n%s",
 				pkg, bdr.platform.os, bdr.platform.arch, string(bs))
 		}
 	}
