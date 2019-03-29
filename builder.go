@@ -38,10 +38,11 @@ func (bdr *builder) build() (string, error) {
 
 	for _, pkg := range bdr.pkgs {
 		log.Printf("Building %s for %s/%s\n", pkg, bdr.platform.os, bdr.platform.arch)
-		cmdArgs := []string{"build"}
-		if bdr.output != "" {
-			cmdArgs = append(cmdArgs, "-o", bdr.output)
+		output := bdr.output
+		if output == "" {
+			output = filepath.Base(pkg)
 		}
+		cmdArgs := []string{"build", "-o", filepath.Join(workDir, output)}
 		if bdr.buildLdFlags != "" {
 			cmdArgs = append(cmdArgs, "-ldflags", bdr.buildLdFlags)
 		}
@@ -51,7 +52,6 @@ func (bdr *builder) build() (string, error) {
 		cmdArgs = append(cmdArgs, pkg)
 
 		cmd := exec.Command("go", cmdArgs...)
-		cmd.Dir = workDir
 		cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
 		bs, err := cmd.CombinedOutput()
 		if err != nil {
