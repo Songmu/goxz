@@ -2,7 +2,6 @@ package goxz
 
 import (
 	"flag"
-	"go/build"
 	"io/ioutil"
 	"log"
 	"os"
@@ -42,7 +41,6 @@ type goxz struct {
 	pkgs                            []string
 	work                            bool
 
-	absPkgs   []string
 	platforms []*platform
 	projDir   string
 	workDir   string
@@ -127,12 +125,6 @@ func (gx *goxz) init() error {
 		rBaseNames[i], _ = filepath.Rel(gx.projDir, r)
 	}
 	log.Printf("Resources to include: [%s]\n", strings.Join(rBaseNames, " "))
-
-	gx.absPkgs, err = goAbsPkgs(gx.pkgs, gx.projDir)
-	if err != nil {
-		return err
-	}
-	log.Printf("Package to build: [%s]\n", strings.Join(gx.absPkgs, " "))
 	return nil
 }
 
@@ -171,31 +163,6 @@ func (gx *goxz) getDest() string {
 		gx.dest = "goxz"
 	}
 	return gx.dest
-}
-
-func goAbsPkgs(pkgs []string, projDir string) ([]string, error) {
-	var gosrcs []string
-	for _, gopath := range filepath.SplitList(build.Default.GOPATH) {
-		gosrcs = append(gosrcs, filepath.Join(filepath.Clean(gopath), "src"))
-	}
-	stuff := make([]string, len(pkgs))
-	for i, pkg := range pkgs {
-		if strings.HasPrefix(pkg, ".") {
-			absPath := filepath.Clean(filepath.Join(projDir, pkg))
-			for _, gosrc := range gosrcs {
-				if strings.HasPrefix(absPath, gosrc) {
-					p, err := filepath.Rel(gosrc, absPath)
-					if err != nil {
-						return nil, err
-					}
-					pkg = p
-					break
-				}
-			}
-		}
-		stuff[i] = pkg
-	}
-	return stuff, nil
 }
 
 var resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install|changelog)`)
@@ -283,7 +250,7 @@ func (gx *goxz) builders() []*builder {
 			output:       gx.output,
 			buildLdFlags: gx.buildLdFlags,
 			buildTags:    gx.buildTags,
-			pkgs:         gx.absPkgs,
+			pkgs:         gx.pkgs,
 			zipAlways:    gx.zipAlways,
 			workDirBase:  gx.workDir,
 			resources:    gx.resources,
