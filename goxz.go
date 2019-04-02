@@ -65,6 +65,16 @@ func (gx *goxz) run() error {
 	if gx.work {
 		log.Printf("working dir: %s\n", gx.workDir)
 	}
+	wd, err := filepath.Abs(".")
+	if err != nil {
+		return err
+	}
+	if wd != gx.projDir {
+		if err := os.Chdir(gx.projDir); err != nil {
+			return err
+		}
+		defer os.Chdir(wd)
+	}
 	err = gx.buildAll()
 	if err == nil {
 		log.Println("Success!")
