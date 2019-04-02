@@ -9,6 +9,14 @@ import (
 	"testing"
 )
 
+func setup(t *testing.T) string {
+	tmpd, err := ioutil.TempDir("", "goxz-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return tmpd
+}
+
 func TestCliRun(t *testing.T) {
 	testCases := []struct {
 		name   string
@@ -61,13 +69,6 @@ func TestCliRun(t *testing.T) {
 			errStr: "can't load package",
 		},
 	}
-	setup := func(t *testing.T) string {
-		tmpd, err := ioutil.TempDir("", "goxz-")
-		if err != nil {
-			t.Fatal(err)
-		}
-		return tmpd
-	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -105,4 +106,40 @@ func TestCliRun(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCliRun_projDir(t *testing.T) {
+	if err := os.Chdir("./testdata"); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir("../")
+
+	input := []string{"-o=abc", "-C=../", "-pv=0.1.1", "-os=freebsd", "./testdata/hello"}
+	builtFiles := []string{"goxz_0.1.1_freebsd_amd64.tar.gz"}
+
+	cl := &cli{outStream: ioutil.Discard, errStream: ioutil.Discard}
+	tmpd := setup(t)
+	defer os.RemoveAll(tmpd)
+	args := append([]string{"-d=" + tmpd}, input...)
+	err := cl.run(args)
+
+	if err != nil {
+
+		t.Errorf("error should be nil but: %s", err)
+	}
+
+	files, err := ioutil.ReadDir(tmpd)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var outs []string
+	for _, f := range files {
+		if !f.IsDir() {
+			outs = append(outs, f.Name())
+		}
+	}
+	if !reflect.DeepEqual(builtFiles, outs) {
+		t.Errorf("files are not built correctly\n   out: %v\nexpect: %v", outs, files)
+	}
+
 }
