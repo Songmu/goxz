@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.1](https://github.com/Songmu/goxz/compare/v0.3.0...v0.3.1) (2019-04-02)
+
+* Fix -C option behavior [#12](https://github.com/Songmu/goxz/pull/12) ([Songmu](https://github.com/Songmu))
+
 ## [v0.3.0](https://github.com/Songmu/goxz/compare/v0.2.0...v0.3.0) (2019-03-29)
 
 * update deps [#10](https://github.com/Songmu/goxz/pull/10) ([Songmu](https://github.com/Songmu))
