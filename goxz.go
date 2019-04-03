@@ -53,7 +53,7 @@ func (gx *goxz) run() error {
 		return err
 	}
 
-	gx.workDir, err = ioutil.TempDir(gx.getDest(), ".goxz-")
+	gx.workDir, err = ioutil.TempDir(gx.dest, ".goxz-")
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,10 @@ func (gx *goxz) init() error {
 		gx.name = filepath.Base(gx.projDir)
 	}
 
-	err := os.MkdirAll(gx.getDest(), 0755)
+	if err := gx.initDest(); err != nil {
+		return err
+	}
+	err := os.MkdirAll(gx.dest, 0755)
 	if err != nil {
 		return err
 	}
@@ -168,11 +171,18 @@ func resolvePlatforms(os, arch string) ([]*platform, error) {
 	return uniqPlatforms, nil
 }
 
-func (gx *goxz) getDest() string {
+func (gx *goxz) initDest() error {
 	if gx.dest == "" {
 		gx.dest = "goxz"
 	}
-	return gx.dest
+	if !filepath.IsAbs(gx.dest) {
+		var err error
+		gx.dest, err = filepath.Abs(gx.dest)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 var resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install|changelog)`)
