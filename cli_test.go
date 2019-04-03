@@ -119,6 +119,11 @@ func TestCliRun_projDir(t *testing.T) {
 
 	cl := &cli{outStream: ioutil.Discard, errStream: ioutil.Discard}
 	tmpd := setup(t)
+	// This deletion process is performed to check whether goxz itself creates
+	// a directory correctly
+	if err := os.RemoveAll(tmpd); err != nil {
+		t.Fatal(err)
+	}
 	defer os.RemoveAll(tmpd)
 	args := append([]string{"-d=" + tmpd}, input...)
 	err := cl.run(args)
