@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.2](https://github.com/Songmu/goxz/compare/v0.3.1...v0.3.2) (2019-04-03)
+
+* Make sure to create the destination directory [#13](https://github.com/Songmu/goxz/pull/13) ([Songmu](https://github.com/Songmu))
+
 ## [v0.3.1](https://github.com/Songmu/goxz/compare/v0.3.0...v0.3.1) (2019-04-02)
 
 * Fix -C option behavior [#12](https://github.com/Songmu/goxz/pull/12) ([Songmu](https://github.com/Songmu))
