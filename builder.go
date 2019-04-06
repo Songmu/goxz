@@ -1,6 +1,7 @@
 package goxz
 
 import (
+	"bytes"
 	"compress/flate"
 	"compress/gzip"
 	"io/ioutil"
@@ -38,11 +39,13 @@ func (bdr *builder) build() (string, error) {
 
 	for _, pkg := range bdr.pkgs {
 		log.Printf("Building %s for %s/%s\n", pkg, bdr.platform.os, bdr.platform.arch)
-		bs, err := exec.Command("go", "list", "-f", "{{.Name}}", pkg).Output()
-		if err != nil {
-			return "", errors.Errorf("go list failed with following output: %q", string(bs))
+		var stdout, stderr bytes.Buffer
+		cmd := exec.Command("go", "list", "-f", "{{.Name}}", pkg)
+		cmd.Stdout, cmd.Stderr = &stdout, &stderr
+		if err := cmd.Run(); err != nil {
+			return "", errors.Errorf("go list failed with following output: %q", stderr.String())
 		}
-		pkgName := strings.TrimSpace(string(bs))
+		pkgName := strings.TrimSpace(stdout.String())
 		if pkgName != "main" {
 			return "", errors.Errorf("can't build artifact for non main package: %q", pkgName)
 		}
@@ -66,9 +69,9 @@ func (bdr *builder) build() (string, error) {
 		}
 		cmdArgs = append(cmdArgs, pkg)
 
-		cmd := exec.Command("go", cmdArgs...)
+		cmd = exec.Command("go", cmdArgs...)
 		cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
-		bs, err = cmd.CombinedOutput()
+		bs, err := cmd.CombinedOutput()
 		if err != nil {
 			return "", errors.Wrapf(err,
 				"go build failed while building %q for %s/%s with following output:\n%s",
