@@ -38,7 +38,7 @@ func (bdr *builder) build() (string, error) {
 
 	for _, pkg := range bdr.pkgs {
 		log.Printf("Building %s for %s/%s\n", pkg, bdr.platform.os, bdr.platform.arch)
-		bs, err := exec.Command("go", "list", "-f", "{{.Name}}", pkg).CombinedOutput()
+		bs, err := exec.Command("go", "list", "-f", "{{.Name}}", pkg).Output()
 		if err != nil {
 			return "", errors.Errorf("go list failed with following output: %q", string(bs))
 		}
