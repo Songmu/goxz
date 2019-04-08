@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.3](https://github.com/Songmu/goxz/compare/v0.3.2...v0.3.3) (2019-04-08)
+
+* Capture stdout and stderr of go list separately [#14](https://github.com/Songmu/goxz/pull/14) ([itchyny](https://github.com/itchyny))
+
 ## [v0.3.2](https://github.com/Songmu/goxz/compare/v0.3.1...v0.3.2) (2019-04-03)
 
 * Make sure to create the destination directory [#13](https://github.com/Songmu/goxz/pull/13) ([Songmu](https://github.com/Songmu))
