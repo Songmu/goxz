@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.0](https://github.com/Songmu/goxz/compare/v0.3.3...v0.4.0) (2019-04-27)
+
+* [incompatible] keep directory structure for included resources [#15](https://github.com/Songmu/goxz/pull/15) ([Songmu](https://github.com/Songmu))
+
 ## [v0.3.3](https://github.com/Songmu/goxz/compare/v0.3.2...v0.3.3) (2019-04-08)
 
 * Capture stdout and stderr of go list separately [#14](https://github.com/Songmu/goxz/pull/14) ([itchyny](https://github.com/itchyny))
