@@ -274,6 +274,7 @@ func (gx *goxz) builders() []*builder {
 			zipAlways:    gx.zipAlways,
 			workDirBase:  gx.workDir,
 			resources:    gx.resources,
+			projDir:      gx.projDir,
 		}
 	}
 	return builders

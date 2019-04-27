@@ -1,9 +1,14 @@
-version: "{build}"
+version: build-{build}.{branch}
 clone_folder: c:\gopath\src\github.com\Songmu\goxz
+shallow_clone: true
 environment:
   GOPATH: c:\gopath
+  GO111MODULE: on
+install:
+- copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
+- set PATH=%GOROOT%\bin;%GOPATH%\bin;c:\MinGW\bin;%PATH%
 build: false
 test_script:
-- go get -d -v -t ./...
-- go tool vet -all .
-- go test ./...
+- make lint
+- make test
+deploy: off
