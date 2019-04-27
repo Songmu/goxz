@@ -23,6 +23,7 @@ type builder struct {
 	workDirBase                     string
 	zipAlways                       bool
 	resources                       []string
+	projDir                         string
 }
 
 func (bdr *builder) build() (string, error) {
@@ -88,7 +89,11 @@ func (bdr *builder) build() (string, error) {
 	}
 
 	for _, rc := range bdr.resources {
-		dest := filepath.Join(workDir, filepath.Base(rc))
+		rel, _ := filepath.Rel(bdr.projDir, rc)
+		dest := filepath.Join(workDir, rel)
+		if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
+			return "", err
+		}
 		if err := os.Link(rc, dest); err != nil {
 			return "", err
 		}
