@@ -60,6 +60,9 @@ func (bdr *builder) build() (string, error) {
 				}
 				output = filepath.Base(wd)
 			}
+			if bdr.platform.os == "windows" {
+				output += ".exe"
+			}
 		}
 		cmdArgs := []string{"build", "-o", filepath.Join(workDir, output)}
 		if bdr.buildLdFlags != "" {
