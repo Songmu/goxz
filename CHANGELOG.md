@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.1](https://github.com/Songmu/goxz/compare/v0.4.0...v0.4.1) (2019-05-01)
+
+* [bugfix] fix output path in windows [#16](https://github.com/Songmu/goxz/pull/16) ([Songmu](https://github.com/Songmu))
+
 ## [v0.4.0](https://github.com/Songmu/goxz/compare/v0.3.3...v0.4.0) (2019-04-27)
 
 * [incompatible] keep directory structure for included resources [#15](https://github.com/Songmu/goxz/pull/15) ([Songmu](https://github.com/Songmu))
