@@ -32,14 +32,15 @@ func Run(args []string) int {
 }
 
 type goxz struct {
-	os, arch                        string
-	name, version                   string
-	dest                            string
-	include                         string
-	output, buildLdFlags, buildTags string
-	zipAlways                       bool
-	pkgs                            []string
-	work                            bool
+	os, arch                                    string
+	name, version                               string
+	dest                                        string
+	include                                     string
+	output                                      string
+	buildLdFlags, buildTags, buildInstallSuffix string
+	zipAlways                                   bool
+	pkgs                                        []string
+	work                                        bool
 
 	platforms []*platform
 	projDir   string
@@ -264,17 +265,18 @@ func (gx *goxz) builders() []*builder {
 	builders := make([]*builder, len(gx.platforms))
 	for i, pf := range gx.platforms {
 		builders[i] = &builder{
-			platform:     pf,
-			name:         gx.name,
-			version:      gx.version,
-			output:       gx.output,
-			buildLdFlags: gx.buildLdFlags,
-			buildTags:    gx.buildTags,
-			pkgs:         gx.pkgs,
-			zipAlways:    gx.zipAlways,
-			workDirBase:  gx.workDir,
-			resources:    gx.resources,
-			projDir:      gx.projDir,
+			platform:           pf,
+			name:               gx.name,
+			version:            gx.version,
+			output:             gx.output,
+			buildLdFlags:       gx.buildLdFlags,
+			buildTags:          gx.buildTags,
+			buildInstallSuffix: gx.buildInstallSuffix,
+			pkgs:               gx.pkgs,
+			zipAlways:          gx.zipAlways,
+			workDirBase:        gx.workDir,
+			resources:          gx.resources,
+			projDir:            gx.projDir,
 		}
 	}
 	return builders

@@ -16,14 +16,15 @@ import (
 )
 
 type builder struct {
-	name, version                   string
-	platform                        *platform
-	output, buildLdFlags, buildTags string
-	pkgs                            []string
-	workDirBase                     string
-	zipAlways                       bool
-	resources                       []string
-	projDir                         string
+	name, version                               string
+	platform                                    *platform
+	output                                      string
+	buildLdFlags, buildTags, buildInstallSuffix string
+	pkgs                                        []string
+	workDirBase                                 string
+	zipAlways                                   bool
+	resources                                   []string
+	projDir                                     string
 }
 
 func (bdr *builder) build() (string, error) {
@@ -70,6 +71,9 @@ func (bdr *builder) build() (string, error) {
 		}
 		if bdr.buildTags != "" {
 			cmdArgs = append(cmdArgs, "-tags", bdr.buildTags)
+		}
+		if bdr.buildInstallSuffix != "" {
+			cmdArgs = append(cmdArgs, "-installsuffix", bdr.buildInstallSuffix)
 		}
 		cmdArgs = append(cmdArgs, pkg)
 
