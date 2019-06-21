@@ -9,6 +9,7 @@ export GO111MODULE=on
 
 deps:
 	go get ${u} -d
+	go mod tidy
 
 devel-deps: deps
 	GO111MODULE=off go get ${u} \
