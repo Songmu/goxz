@@ -52,6 +52,7 @@ Options:
 	fs.StringVar(&gx.include, "include", "", "Include additional resources in archives")
 	fs.StringVar(&gx.buildLdFlags, "build-ldflags", "", "arguments to pass on each go tool link invocation")
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
+	fs.StringVar(&gx.buildInstallSuffix, "build-installsuffix", "", "a space-separated list of build `installsuffix`")
 	fs.BoolVar(&gx.zipAlways, "z", false, "zip always")
 	fs.StringVar(&gx.projDir, "C", "", "specify the project directory. cwd by default")
 
