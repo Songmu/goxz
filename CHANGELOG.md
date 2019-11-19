@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.5.0](https://github.com/Songmu/goxz/compare/v0.4.1...v0.5.0) (2019-11-19)
+
+* change interface of func Run [#19](https://github.com/Songmu/goxz/pull/19) ([Songmu](https://github.com/Songmu))
+* add -build-installsuffix option to support -installsuffix [#17](https://github.com/Songmu/goxz/pull/17) ([Songmu](https://github.com/Songmu))
+
 ## [v0.4.1](https://github.com/Songmu/goxz/compare/v0.4.0...v0.4.1) (2019-05-01)
 
 * [bugfix] fix output path in windows [#16](https://github.com/Songmu/goxz/pull/16) ([Songmu](https://github.com/Songmu))
