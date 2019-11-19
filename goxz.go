@@ -1,7 +1,8 @@
 package goxz
 
 import (
-	"flag"
+	"context"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,22 +14,9 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	exitCodeOK = iota
-	exitCodeErr
-)
-
 // Run the goxz
-func Run(args []string) int {
-	err := (&cli{outStream: os.Stdout, errStream: os.Stderr}).run(args)
-	if err != nil {
-		if err == flag.ErrHelp {
-			return exitCodeOK
-		}
-		log.Printf("[!!ERROR!!] %s\n", err)
-		return exitCodeErr
-	}
-	return exitCodeOK
+func Run(ctx context.Context, args []string, outStream, errStream io.Writer) error {
+	return (&cli{outStream: outStream, errStream: errStream}).run(args)
 }
 
 type goxz struct {
