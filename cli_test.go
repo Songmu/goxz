@@ -66,7 +66,7 @@ func TestCliRun(t *testing.T) {
 		{
 			name:   "[error] package not exists",
 			input:  []string{"-work", "./testdata/hello___"},
-			errStr: "can't load package",
+			errStr: "cannot find module for path",
 		},
 	}
 
