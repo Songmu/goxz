@@ -22,7 +22,7 @@ type builder struct {
 	buildLdFlags, buildTags, buildInstallSuffix string
 	pkgs                                        []string
 	workDirBase                                 string
-	zipAlways                                   bool
+	zipAlways, static                           bool
 	resources                                   []string
 	projDir                                     string
 }
@@ -66,11 +66,52 @@ func (bdr *builder) build() (string, error) {
 			}
 		}
 		cmdArgs := []string{"build", "-o", filepath.Join(workDir, output)}
-		if bdr.buildLdFlags != "" {
-			cmdArgs = append(cmdArgs, "-ldflags", bdr.buildLdFlags)
+		// ref. https://github.com/golang/go/issues/26492#issuecomment-435462350
+		if bdr.buildLdFlags != "" || bdr.static {
+			var flags string
+			if bdr.static {
+				switch bdr.platform.os {
+				case "windows":
+					flags = `-H=windowsgui -extldflags "-static"`
+				case "freebsd", "netbsd", "linux":
+					flags = `-extldflags "-static"`
+				case "darwin":
+					flags = `-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"`
+				case "android":
+					flags = `-s`
+				}
+			}
+			if bdr.buildLdFlags != "" {
+				if flags == "" {
+					flags = bdr.buildLdFlags
+				} else {
+					flags += " " + bdr.buildLdFlags
+				}
+			}
+			if flags != "" {
+				cmdArgs = append(cmdArgs, "-ldflags", flags)
+			}
 		}
-		if bdr.buildTags != "" {
-			cmdArgs = append(cmdArgs, "-tags", bdr.buildTags)
+		if bdr.buildTags != "" || bdr.static {
+			var tags string
+			if bdr.static {
+				switch bdr.platform.os {
+				case "windows", "freebsd", "netbsd":
+					tags = "netgo"
+				case "linux":
+					tags = "netgo osusergo"
+				}
+			}
+			if bdr.buildTags != "" {
+				if tags == "" {
+					tags = bdr.buildTags
+				} else {
+					tags += " " + bdr.buildTags
+				}
+			}
+			if tags != "" {
+				cmdArgs = append(cmdArgs, "-tags", tags)
+			}
 		}
 		if bdr.buildInstallSuffix != "" {
 			cmdArgs = append(cmdArgs, "-installsuffix", bdr.buildInstallSuffix)
