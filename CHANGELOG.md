@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.6.0](https://github.com/Songmu/goxz/compare/v0.5.0...v0.6.0) (2020-01-17)
+
+* implement -static flag to build static binary [#20](https://github.com/Songmu/goxz/pull/20) ([Songmu](https://github.com/Songmu))
+
 ## [v0.5.0](https://github.com/Songmu/goxz/compare/v0.4.1...v0.5.0) (2019-11-19)
 
 * change interface of func Run [#19](https://github.com/Songmu/goxz/pull/19) ([Songmu](https://github.com/Songmu))
