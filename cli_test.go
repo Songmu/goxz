@@ -44,6 +44,16 @@ func TestCliRun(t *testing.T) {
 			},
 		},
 		{
+			name:  "zip always, static and specify multi arch",
+			input: []string{"-z", "-static", "-os=darwin,linux,freebsd,windows", "./testdata/hello"},
+			files: []string{
+				"goxz_darwin_amd64.zip",
+				"goxz_linux_amd64.zip",
+				"goxz_windows_amd64.zip",
+				"goxz_freebsd_amd64.zip",
+			},
+		},
+		{
 			name:  "build multiple pakcages with app name",
 			input: []string{"-n=abc", "-os=linux", "-arch=amd64", "./testdata/hello", "./cmd/goxz"},
 			files: []string{"abc_linux_amd64.tar.gz"},

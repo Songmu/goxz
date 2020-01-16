@@ -28,6 +28,7 @@ type goxz struct {
 	buildLdFlags, buildTags, buildInstallSuffix string
 	zipAlways                                   bool
 	pkgs                                        []string
+	static                                      bool
 	work                                        bool
 
 	platforms []*platform
@@ -262,6 +263,7 @@ func (gx *goxz) builders() []*builder {
 			buildInstallSuffix: gx.buildInstallSuffix,
 			pkgs:               gx.pkgs,
 			zipAlways:          gx.zipAlways,
+			static:             gx.static,
 			workDirBase:        gx.workDir,
 			resources:          gx.resources,
 			projDir:            gx.projDir,

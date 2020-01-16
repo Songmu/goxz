@@ -1,9 +1,9 @@
 VERSION = $(shell godzil show-version)
 CURRENT_REVISION = $(shell git rev-parse --short HEAD)
 BUILD_LDFLAGS = "-X github.com/Songmu/goxz.revision=$(CURRENT_REVISION)"
-ifdef update
-  u=-u
-endif
+u := $(if $(update),-u)
+
+export GO111MODULE=on
 
 .PHONY: deps
 deps:
@@ -12,11 +12,15 @@ deps:
 
 .PHONY: devel-deps
 devel-deps: deps
-	GO111MODULE=off go get ${u} \
+	sh -c '\
+	tmpdir=$$(mktemp -d); \
+	cd $$tmpdir; \
+	go get ${u} \
 	  golang.org/x/lint/golint            \
 	  github.com/mattn/goveralls          \
 	  github.com/Songmu/godzil/cmd/godzil \
-	  github.com/tcnksm/ghr
+	  github.com/tcnksm/ghr; \
+	rm -rf $$tmpdir'
 
 .PHONY: test
 test: deps
@@ -42,7 +46,7 @@ bump: devel-deps
 .PHONY: crossbuild
 crossbuild: build
 	./goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
-	  -d=./dist/v$(VERSION) ./cmd/goxz
+        -d=./dist/v$(VERSION) ./cmd/goxz
 
 .PHONY: upload
 upload:
