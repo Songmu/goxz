@@ -45,7 +45,7 @@ bump: devel-deps
 
 .PHONY: crossbuild
 crossbuild: build
-	./goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
+	./goxz -pv=v$(VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
         -d=./dist/v$(VERSION) ./cmd/goxz
 
 .PHONY: upload
