@@ -71,9 +71,7 @@ func (bdr *builder) build() (string, error) {
 			var flags string
 			if bdr.static {
 				switch bdr.platform.os {
-				case "windows":
-					flags = `-H=windowsgui -extldflags "-static"`
-				case "freebsd", "netbsd", "linux":
+				case "freebsd", "netbsd", "linux", "windows":
 					flags = `-extldflags "-static"`
 				case "darwin":
 					flags = `-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"`
