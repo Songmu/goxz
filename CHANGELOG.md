@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.7.0](https://github.com/Songmu/goxz/compare/v0.6.0...v0.7.0) (2021-04-05)
+
+* make -trimpath true by default [#27](https://github.com/Songmu/goxz/pull/27) ([Songmu](https://github.com/Songmu))
+* Add -trimpath option [#24](https://github.com/Songmu/goxz/pull/24) ([hirose31](https://github.com/hirose31))
+* migrate CIs to GitHub Actions [#25](https://github.com/Songmu/goxz/pull/25) ([Songmu](https://github.com/Songmu))
+* Do not use -Hwindowsgui [#21](https://github.com/Songmu/goxz/pull/21) ([mattn](https://github.com/mattn))
+
 ## [v0.6.0](https://github.com/Songmu/goxz/compare/v0.5.0...v0.6.0) (2020-01-17)
 
 * implement -static flag to build static binary [#20](https://github.com/Songmu/goxz/pull/20) ([Songmu](https://github.com/Songmu))
