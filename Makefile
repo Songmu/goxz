@@ -11,16 +11,9 @@ deps:
 	go mod tidy
 
 .PHONY: devel-deps
-devel-deps: deps
-	sh -c '\
-	tmpdir=$$(mktemp -d); \
-	cd $$tmpdir; \
-	go get ${u} \
-	  golang.org/x/lint/golint            \
-	  github.com/mattn/goveralls          \
-	  github.com/Songmu/godzil/cmd/godzil \
-	  github.com/tcnksm/ghr; \
-	rm -rf $$tmpdir'
+devel-deps: build
+	go install github.com/Songmu/godzil/cmd/godzil@latest
+	go install github.com/tcnksm/ghr@latest
 
 .PHONY: test
 test: deps
@@ -50,7 +43,7 @@ crossbuild: build
 
 .PHONY: upload
 upload:
-	ghr v$(VERSION) dist/v$(VERSION)
+	ghr -body="$$(godzil changelog --latest -F markdown)" v$(VERSION) dist/v$(VERSION)
 
 .PHONY: release
-release: bump crossbuild upload
+release: bump

@@ -35,10 +35,10 @@ func TestCliRun(t *testing.T) {
 		},
 		{
 			name:  "zip always and specify multi arch",
-			input: []string{"-z", "-os=darwin,linux", "-arch=386 amd64", "./testdata/hello"},
+			input: []string{"-z", "-os=freebsd,linux", "-arch=386 amd64", "./testdata/hello"},
 			files: []string{
-				"goxz_darwin_amd64.zip",
-				"goxz_darwin_386.zip",
+				"goxz_freebsd_amd64.zip",
+				"goxz_freebsd_386.zip",
 				"goxz_linux_amd64.zip",
 				"goxz_linux_386.zip",
 			},
@@ -76,7 +76,7 @@ func TestCliRun(t *testing.T) {
 		{
 			name:   "[error] package not exists",
 			input:  []string{"-work", "./testdata/hello___"},
-			errStr: "cannot find module for path",
+			errStr: "go list failed with following output",
 		},
 	}
 
