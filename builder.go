@@ -22,7 +22,7 @@ type builder struct {
 	buildLdFlags, buildTags, buildInstallSuffix string
 	pkgs                                        []string
 	workDirBase                                 string
-	zipAlways, static                           bool
+	zipAlways, static, trimpath                 bool
 	resources                                   []string
 	projDir                                     string
 }
@@ -110,6 +110,9 @@ func (bdr *builder) build() (string, error) {
 			if tags != "" {
 				cmdArgs = append(cmdArgs, "-tags", tags)
 			}
+		}
+		if bdr.trimpath {
+			cmdArgs = append(cmdArgs, "-trimpath")
 		}
 		if bdr.buildInstallSuffix != "" {
 			cmdArgs = append(cmdArgs, "-installsuffix", bdr.buildInstallSuffix)
