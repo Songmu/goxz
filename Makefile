@@ -37,7 +37,7 @@ bump: devel-deps
 	godzil release
 
 .PHONY: crossbuild
-crossbuild: build
+crossbuild: devel-deps
 	./goxz -pv=v$(VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
         -d=./dist/v$(VERSION) ./cmd/goxz
 
