@@ -30,6 +30,7 @@ type goxz struct {
 	pkgs                                        []string
 	static                                      bool
 	work                                        bool
+	trimpath                                    bool
 
 	platforms []*platform
 	projDir   string
@@ -265,6 +266,7 @@ func (gx *goxz) builders() []*builder {
 			zipAlways:          gx.zipAlways,
 			static:             gx.static,
 			workDirBase:        gx.workDir,
+			trimpath:           gx.trimpath,
 			resources:          gx.resources,
 			projDir:            gx.projDir,
 		}
