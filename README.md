@@ -1,15 +1,15 @@
 goxz
 =======
 
-[![Build Status](https://travis-ci.org/Songmu/goxz.png?branch=master)][travis]
-[![Coverage Status](https://coveralls.io/repos/Songmu/goxz/badge.png?branch=master)][coveralls]
+[![Build Status](https://github.com/Songmu/goxz/workflows/test/badge.svg?branch=master)][actions]
+[![Coverage Status](https://codecov.io/gh/Songmu/goxz/branch/master/graph/badge.svg)][codecov]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
-[![GoDoc](https://godoc.org/github.com/Songmu/goxz?status.svg)][godoc]
+[![GoDev](https://pkg.go.dev/badge/github.com/Songmu/goxz)][godev]
 
-[travis]: https://travis-ci.org/Songmu/goxz
-[coveralls]: https://coveralls.io/r/Songmu/goxz?branch=master
+[actions]: https://github.com//Songmu/goxz/actions?workflow=test
+[codecov]: https://codecov.io/gh/Songmu/goxz
 [license]: https://github.com/Songmu/goxz/blob/master/LICENSE
-[godoc]: https://godoc.org/github.com/Songmu/goxz
+[godev]: https://pkg.go.dev/github.com/Songmu/goxz
 
 GO + X (crossbuild) + Z (zip)
 
