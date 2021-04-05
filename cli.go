@@ -58,7 +58,7 @@ Options:
 
 	fs.BoolVar(&gx.static, "static", false, "build statically linked binary")
 	fs.BoolVar(&gx.work, "work", false, "[for debug] print the name of the temporary work directory and do not delete it when exiting.")
-	fs.BoolVar(&gx.trimpath, "trimpath", false, "remove all file system paths from the resulting executable. requires Go 1.13 or later.")
+	fs.BoolVar(&gx.trimpath, "trimpath", true, "remove all file system paths from the resulting executable. requires Go 1.13 or later.")
 
 	err := fs.Parse(args)
 	if err != nil {
