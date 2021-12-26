@@ -19,7 +19,7 @@ Just do cross building and archiving go tools conventionally
 
 ## Installation
 
-    % go get github.com/Songmu/goxz/cmd/goxz
+    % go install github.com/Songmu/goxz/cmd/goxz@latest
 
 Built binaries are available on gihub releases.
 <https://github.com/Songmu/goxz/releases>
