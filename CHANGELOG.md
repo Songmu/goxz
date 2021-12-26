@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.8.1](https://github.com/Songmu/goxz/compare/v0.8.0...v0.8.1) (2021-12-26)
+
+* update mholt/archiver/v3 [#31](https://github.com/Songmu/goxz/pull/31) ([Songmu](https://github.com/Songmu))
+
 ## [v0.8.0](https://github.com/Songmu/goxz/compare/v0.7.0...v0.8.0) (2021-12-26)
 
 * build arm64 by default in addition to amd64 [#30](https://github.com/Songmu/goxz/pull/30) ([Songmu](https://github.com/Songmu))
