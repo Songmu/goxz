@@ -34,6 +34,9 @@ build: deps
 release: devel-deps
 	godzil release
 
+CREDITS: deps devel-deps go.sum
+	godzil credits -w
+
 .PHONY: crossbuild
 crossbuild: devel-deps
 	./goxz -pv=v$(VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
