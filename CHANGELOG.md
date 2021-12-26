@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.8.0](https://github.com/Songmu/goxz/compare/v0.7.0...v0.8.0) (2021-12-26)
+
+* build arm64 by default in addition to amd64 [#30](https://github.com/Songmu/goxz/pull/30) ([Songmu](https://github.com/Songmu))
+* go1.17 and update deps [#29](https://github.com/Songmu/goxz/pull/29) ([Songmu](https://github.com/Songmu))
+* fix synopsis text [#28](https://github.com/Songmu/goxz/pull/28) ([yulog](https://github.com/yulog))
+
 ## [v0.7.0](https://github.com/Songmu/goxz/compare/v0.6.0...v0.7.0) (2021-04-05)
 
 * make -trimpath true by default [#27](https://github.com/Songmu/goxz/pull/27) ([Songmu](https://github.com/Songmu))
