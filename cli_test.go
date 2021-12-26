@@ -29,8 +29,11 @@ func TestCliRun(t *testing.T) {
 			input: []string{"./testdata/hello"},
 			files: []string{
 				"goxz_darwin_amd64.zip",
+				"goxz_darwin_arm64.zip",
 				"goxz_linux_amd64.tar.gz",
+				"goxz_linux_arm64.tar.gz",
 				"goxz_windows_amd64.zip",
+				"goxz_windows_arm64.zip",
 			},
 		},
 		{
@@ -44,13 +47,17 @@ func TestCliRun(t *testing.T) {
 			},
 		},
 		{
-			name:  "zip always, static and specify multi arch",
+			name:  "zip always, static and specify multi os",
 			input: []string{"-z", "-static", "-os=darwin,linux,freebsd,windows", "./testdata/hello"},
 			files: []string{
 				"goxz_darwin_amd64.zip",
+				"goxz_darwin_arm64.zip",
 				"goxz_linux_amd64.zip",
+				"goxz_linux_arm64.zip",
 				"goxz_windows_amd64.zip",
+				"goxz_windows_arm64.zip",
 				"goxz_freebsd_amd64.zip",
+				"goxz_freebsd_arm64.zip",
 			},
 		},
 		{
@@ -61,7 +68,10 @@ func TestCliRun(t *testing.T) {
 		{
 			name:  "output option with version",
 			input: []string{"-o=abc", "-C=.", "-pv=0.1.1", "-os=freebsd", "./testdata/hello"},
-			files: []string{"goxz_0.1.1_freebsd_amd64.tar.gz"},
+			files: []string{
+				"goxz_0.1.1_freebsd_amd64.tar.gz",
+				"goxz_0.1.1_freebsd_arm64.tar.gz",
+			},
 		},
 		{
 			name:   "[error] no resulting object",
@@ -125,7 +135,10 @@ func TestCliRun_projDir(t *testing.T) {
 	defer os.Chdir("../")
 
 	input := []string{"-o=abc", "-C=../", "-pv=0.1.1", "-os=freebsd", "./testdata/hello"}
-	builtFiles := []string{"goxz_0.1.1_freebsd_amd64.tar.gz"}
+	builtFiles := []string{
+		"goxz_0.1.1_freebsd_amd64.tar.gz",
+		"goxz_0.1.1_freebsd_arm64.tar.gz",
+	}
 
 	cl := &cli{outStream: ioutil.Discard, errStream: ioutil.Discard}
 	tmpd := setup(t)
@@ -154,7 +167,7 @@ func TestCliRun_projDir(t *testing.T) {
 		}
 	}
 	if !reflect.DeepEqual(builtFiles, outs) {
-		t.Errorf("files are not built correctly\n   out: %v\nexpect: %v", outs, files)
+		t.Errorf("files are not built correctly\n   out: %v\nexpect: %v", outs, builtFiles)
 	}
 
 }

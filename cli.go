@@ -48,7 +48,7 @@ Options:
 	fs.StringVar(&gx.version, "pv", "", "Package version (optional)")
 	fs.StringVar(&gx.output, "o", "", "output (optional)")
 	fs.StringVar(&gx.os, "os", "", "Specify OS (default is 'linux darwin windows')")
-	fs.StringVar(&gx.arch, "arch", "", "Specify Arch (default is 'amd64')")
+	fs.StringVar(&gx.arch, "arch", "", "Specify Arch (default is 'amd64,arm64')")
 	fs.StringVar(&gx.include, "include", "", "Include additional resources in archives")
 	fs.StringVar(&gx.buildLdFlags, "build-ldflags", "", "arguments to pass on each go tool link invocation")
 	fs.StringVar(&gx.buildTags, "build-tags", "", "a space-separated list of build `tags`")
