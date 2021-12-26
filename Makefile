@@ -3,8 +3,6 @@ CURRENT_REVISION = $(shell git rev-parse --short HEAD)
 BUILD_LDFLAGS = "-X github.com/Songmu/goxz.revision=$(CURRENT_REVISION)"
 u := $(if $(update),-u)
 
-export GO111MODULE=on
-
 .PHONY: deps
 deps:
 	go get ${u} -d
@@ -32,9 +30,12 @@ cover: devel-deps
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
 
-.PHONY: bump
-bump: devel-deps
+.PHONY: release
+release: devel-deps
 	godzil release
+
+CREDITS: deps devel-deps go.sum
+	godzil credits -w
 
 .PHONY: crossbuild
 crossbuild: devel-deps
@@ -44,6 +45,3 @@ crossbuild: devel-deps
 .PHONY: upload
 upload:
 	ghr -body="$$(godzil changelog --latest -F markdown)" v$(VERSION) dist/v$(VERSION)
-
-.PHONY: release
-release: bump

@@ -22,7 +22,7 @@ jobs:
       uses: actions/checkout@v2
     - name: lint
       run: |
-        go get golang.org/x/lint/golint
+        go install golang.org/x/lint/golint@latest
         golint -set_exit_status ./...
     - name: test
       run: go test -race -coverprofile coverage.out -covermode atomic
