@@ -113,7 +113,7 @@ func (gx *goxz) init() error {
 		gx.os = "linux darwin windows"
 	}
 	if gx.arch == "" {
-		gx.arch = "amd64"
+		gx.arch = "amd64 arm64"
 	}
 	gx.platforms, err = resolvePlatforms(gx.os, gx.arch)
 	if err != nil {
