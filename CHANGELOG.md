@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.8.2](https://github.com/Songmu/goxz/compare/v0.8.1...v0.8.2) (2022-05-06)
+
+* Use deflate algorithm for zip archives [#33](https://github.com/Songmu/goxz/pull/33) ([itchyny](https://github.com/itchyny))
+
 ## [v0.8.1](https://github.com/Songmu/goxz/compare/v0.8.0...v0.8.1) (2021-12-26)
 
 * update mholt/archiver/v3 [#31](https://github.com/Songmu/goxz/pull/31) ([Songmu](https://github.com/Songmu))
