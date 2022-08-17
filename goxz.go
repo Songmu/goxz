@@ -176,7 +176,10 @@ func (gx *goxz) initDest() error {
 	return nil
 }
 
-var resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install|changelog)`)
+var (
+	resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install|changelog)`)
+	execExtReg  = regexp.MustCompile(`(?i)\.(?:[a-z]*sh|p[ly]|rb|exe|go)$`)
+)
 
 func (gx *goxz) gatherResources() ([]string, error) {
 	dir := gx.projDir
@@ -191,7 +194,7 @@ func (gx *goxz) gatherResources() ([]string, error) {
 			continue
 		}
 		n := f.Name()
-		if resourceReg.MatchString(n) && !strings.HasSuffix(n, ".go") {
+		if resourceReg.MatchString(n) && !execExtReg.MatchString(n) {
 			ret = append(ret, filepath.Join(dir, n))
 		}
 	}
