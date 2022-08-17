@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.9.0](https://github.com/Songmu/goxz/compare/v0.8.2...v0.9.0) (2022-08-18)
+
+* update deps [#35](https://github.com/Songmu/goxz/pull/35) ([Songmu](https://github.com/Songmu))
+* skip executables from auto collected resources [#34](https://github.com/Songmu/goxz/pull/34) ([Songmu](https://github.com/Songmu))
+
 ## [v0.8.2](https://github.com/Songmu/goxz/compare/v0.8.1...v0.8.2) (2022-05-06)
 
 * Use deflate algorithm for zip archives [#33](https://github.com/Songmu/goxz/pull/33) ([itchyny](https://github.com/itchyny))
