@@ -17,15 +17,6 @@ devel-deps: build
 test: deps
 	go test
 
-.PHONY: lint
-lint: devel-deps
-	go vet
-	golint -set_exit_status
-
-.PHONY: cover
-cover: devel-deps
-	goveralls
-
 .PHONY: build
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
@@ -37,7 +28,7 @@ release: devel-deps
 CREDITS: deps devel-deps go.sum
 	godzil credits -w
 
-.PHONY: crossbuild
+.PHONY: CREDITS crossbuild
 crossbuild: devel-deps
 	./goxz -pv=v$(VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
         -d=./dist/v$(VERSION) ./cmd/goxz
