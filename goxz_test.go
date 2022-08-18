@@ -99,7 +99,7 @@ func TestGatherResources(t *testing.T) {
 	for i, r := range files {
 		out[i], _ = filepath.Rel(projDir, r)
 	}
-	expect := []string{"LICENSE.txt", "README.md", "sample.conf"}
+	expect := []string{"CREDITS", "LICENSE.txt", "README.md", "sample.conf"}
 	sort.Strings(expect)
 	sort.Strings(out)
 	if !reflect.DeepEqual(out, expect) {
