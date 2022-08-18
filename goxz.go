@@ -177,7 +177,7 @@ func (gx *goxz) initDest() error {
 }
 
 var (
-	resourceReg = regexp.MustCompile(`(?i)^(?:readme|license|credit|install|changelog)`)
+	resourceReg = regexp.MustCompile(`(?i)^(?:readme|licen[sc]e|credits?|install|changelog)(?:\.|$)`)
 	execExtReg  = regexp.MustCompile(`(?i)\.(?:[a-z]*sh|p[ly]|rb|exe|go)$`)
 )
 
