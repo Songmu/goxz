@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.9.1](https://github.com/Songmu/goxz/compare/v0.9.0...v0.9.1) (2022-08-18)
+
+* refine resource gathering [#36](https://github.com/Songmu/goxz/pull/36) ([Songmu](https://github.com/Songmu))
+
 ## [v0.9.0](https://github.com/Songmu/goxz/compare/v0.8.2...v0.9.0) (2022-08-18)
 
 * update deps [#35](https://github.com/Songmu/goxz/pull/35) ([Songmu](https://github.com/Songmu))
