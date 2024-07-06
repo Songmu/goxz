@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/flate"
 	"compress/gzip"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -128,7 +127,7 @@ func (bdr *builder) build() (string, error) {
 				pkg, bdr.platform.os, bdr.platform.arch, string(bs))
 		}
 	}
-	files, err := ioutil.ReadDir(workDir)
+	files, err := os.ReadDir(workDir)
 	if err != nil {
 		return "", err
 	}
