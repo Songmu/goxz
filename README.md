@@ -24,6 +24,10 @@ Just do cross building and archiving go tools conventionally
 Built binaries are available on gihub releases.
 <https://github.com/Songmu/goxz/releases>
 
+You can also install goxz with [aqua](https://aquaproj.github.io/).
+
+    % aqua g -i Songmu/goxz
+
 ## Concept
 
 - Simple and Lightweight
