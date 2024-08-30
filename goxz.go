@@ -3,7 +3,6 @@ package goxz
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -44,7 +43,7 @@ func (gx *goxz) run() error {
 		return err
 	}
 
-	gx.workDir, err = ioutil.TempDir(gx.dest, ".goxz-")
+	gx.workDir, err = os.MkdirTemp(gx.dest, ".goxz-")
 	if err != nil {
 		return err
 	}
@@ -185,12 +184,12 @@ func (gx *goxz) gatherResources() ([]string, error) {
 	dir := gx.projDir
 
 	var ret []string
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
 	for _, f := range files {
-		if !f.Mode().IsRegular() {
+		if !f.Type().IsRegular() {
 			continue
 		}
 		n := f.Name()

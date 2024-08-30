@@ -3,7 +3,7 @@ package goxz
 import (
 	"context"
 	"flag"
-	"io/ioutil"
+	"io"
 	"path/filepath"
 	"reflect"
 	"sort"
@@ -11,7 +11,7 @@ import (
 )
 
 func TestRun_help(t *testing.T) {
-	err := Run(context.Background(), []string{"-h"}, ioutil.Discard, ioutil.Discard)
+	err := Run(context.Background(), []string{"-h"}, io.Discard, io.Discard)
 	if err != flag.ErrHelp {
 		t.Errorf("somthing went wrong: %s", err)
 	}

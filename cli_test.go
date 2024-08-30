@@ -1,7 +1,7 @@
 package goxz
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"reflect"
 	"sort"
@@ -10,7 +10,7 @@ import (
 )
 
 func setup(t *testing.T) string {
-	tmpd, err := ioutil.TempDir("", "goxz-")
+	tmpd, err := os.MkdirTemp("", "goxz-")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,7 +92,7 @@ func TestCliRun(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cl := &cli{outStream: ioutil.Discard, errStream: ioutil.Discard}
+			cl := &cli{outStream: io.Discard, errStream: io.Discard}
 			tmpd := setup(t)
 			defer os.RemoveAll(tmpd)
 			args := append([]string{"-d=" + tmpd}, tc.input...)
@@ -108,7 +108,7 @@ func TestCliRun(t *testing.T) {
 					t.Errorf("%s: error should be contains %q, but %q", tc.name, tc.errStr, err)
 				}
 			}
-			files, err := ioutil.ReadDir(tmpd)
+			files, err := os.ReadDir(tmpd)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -140,7 +140,7 @@ func TestCliRun_projDir(t *testing.T) {
 		"goxz_0.1.1_freebsd_arm64.tar.gz",
 	}
 
-	cl := &cli{outStream: ioutil.Discard, errStream: ioutil.Discard}
+	cl := &cli{outStream: io.Discard, errStream: io.Discard}
 	tmpd := setup(t)
 	// This deletion process is performed to check whether goxz itself creates
 	// a directory correctly
@@ -156,7 +156,7 @@ func TestCliRun_projDir(t *testing.T) {
 		t.Errorf("error should be nil but: %s", err)
 	}
 
-	files, err := ioutil.ReadDir(tmpd)
+	files, err := os.ReadDir(tmpd)
 	if err != nil {
 		t.Fatal(err)
 	}
