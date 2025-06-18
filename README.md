@@ -1,11 +1,13 @@
 goxz
 =======
 
+[![Network Dependents](https://dependents.info/Songmu/goxz/badge)](dependents-info)
 [![Build Status](https://github.com/Songmu/goxz/workflows/test/badge.svg?branch=main)][actions]
 [![Coverage Status](https://codecov.io/gh/Songmu/goxz/branch/main/graph/badge.svg)][codecov]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![GoDev](https://pkg.go.dev/badge/github.com/Songmu/goxz)][godev]
 
+[dependents-info]: https://dependents.info/Songmu/goxz
 [actions]: https://github.com//Songmu/goxz/actions?workflow=test
 [codecov]: https://codecov.io/gh/Songmu/goxz
 [license]: https://github.com/Songmu/goxz/blob/main/LICENSE
@@ -16,6 +18,12 @@ GO + X (crossbuild) + Z (zip)
 ## Description
 
 Just do cross building and archiving go tools conventionally
+
+## Used by
+
+<a href="https://dependents.info/Songmu/goxz">
+  <img src="https://dependents.info/Songmu/goxz/image" />
+</a>
 
 ## Installation
 
