@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.10.1](https://github.com/Songmu/goxz/compare/v0.10.0...v0.10.1) - 2025-06-18
+- drop mholt/archiver dependency by @Songmu in https://github.com/Songmu/goxz/pull/47
+- drop pkg/errors dependency by @Songmu in https://github.com/Songmu/goxz/pull/48
+
 ## [v0.10.0](https://github.com/Songmu/goxz/compare/v0.9.1...v0.10.0) - 2025-06-18
 - replace ioutil by @yulog in https://github.com/Songmu/goxz/pull/39
 - docs: add the installation guide with aqua by @suzuki-shunsuke in https://github.com/Songmu/goxz/pull/38
