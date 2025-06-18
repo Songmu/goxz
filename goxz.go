@@ -2,6 +2,7 @@ package goxz
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
