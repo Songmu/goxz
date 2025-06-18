@@ -5,14 +5,13 @@ import (
 	"archive/zip"
 	"bytes"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 type builder struct {
@@ -45,11 +44,11 @@ func (bdr *builder) build() (string, error) {
 		cmd := exec.Command("go", "list", "-f", "{{.Name}}", pkg)
 		cmd.Stdout, cmd.Stderr = &stdout, &stderr
 		if err := cmd.Run(); err != nil {
-			return "", errors.Errorf("go list failed with following output: %q", stderr.String())
+			return "", fmt.Errorf("go list failed with following output: %q", stderr.String())
 		}
 		pkgName := strings.TrimSpace(stdout.String())
 		if pkgName != "main" {
-			return "", errors.Errorf("can't build artifact for non main package: %q", pkgName)
+			return "", fmt.Errorf("can't build artifact for non main package: %q", pkgName)
 		}
 		output := bdr.output
 		if output == "" {
@@ -123,9 +122,9 @@ func (bdr *builder) build() (string, error) {
 		cmd.Env = append(os.Environ(), "GOOS="+bdr.platform.os, "GOARCH="+bdr.platform.arch)
 		bs, err := cmd.CombinedOutput()
 		if err != nil {
-			return "", errors.Wrapf(err,
-				"go build failed while building %q for %s/%s with following output:\n%s",
-				pkg, bdr.platform.os, bdr.platform.arch, string(bs))
+			return "", fmt.Errorf(
+				"go build failed while building %q for %s/%s with following output:\n%s: %v",
+				pkg, bdr.platform.os, bdr.platform.arch, string(bs), err)
 		}
 	}
 	files, err := os.ReadDir(workDir)
@@ -133,7 +132,7 @@ func (bdr *builder) build() (string, error) {
 		return "", err
 	}
 	if len(files) == 0 {
-		return "", errors.Errorf("No binaries are built from [%s] for %s/%s",
+		return "", fmt.Errorf("No binaries are built from [%s] for %s/%s",
 			strings.Join(bdr.pkgs, " "), bdr.platform.os, bdr.platform.arch)
 	}
 
