@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.10.0](https://github.com/Songmu/goxz/compare/v0.9.1...v0.10.0) - 2025-06-18
+- replace ioutil by @yulog in https://github.com/Songmu/goxz/pull/39
+- docs: add the installation guide with aqua by @suzuki-shunsuke in https://github.com/Songmu/goxz/pull/38
+- update Go and dependencies to latest by @Songmu in https://github.com/Songmu/goxz/pull/41
+- introduce tagpr by @Songmu in https://github.com/Songmu/goxz/pull/42
+
 ## [v0.9.1](https://github.com/Songmu/goxz/compare/v0.9.0...v0.9.1) (2022-08-18)
 
 * refine resource gathering [#36](https://github.com/Songmu/goxz/pull/36) ([Songmu](https://github.com/Songmu))
