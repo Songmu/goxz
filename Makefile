@@ -7,7 +7,7 @@ export GO111MODULE=on
 
 .PHONY: deps
 deps:
-	go get ${u} -d
+	go get ${u}
 	go mod tidy
 
 .PHONY: devel-deps
