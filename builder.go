@@ -1,16 +1,17 @@
 package goxz
 
 import (
+	"archive/tar"
+	"archive/zip"
 	"bytes"
-	"compress/flate"
 	"compress/gzip"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/mholt/archiver/v3"
 	"github.com/pkg/errors"
 )
 
@@ -147,29 +148,121 @@ func (bdr *builder) build() (string, error) {
 		}
 	}
 
-	var arch archiver.Archiver
 	var archiveFilePath string
+	var archive func(sourceDir string, w io.Writer) error
 	if bdr.zipAlways || bdr.platform.os == "windows" || bdr.platform.os == "darwin" {
-		arch = &archiver.Zip{
-			CompressionLevel:     flate.DefaultCompression,
-			MkdirAll:             true,
-			SelectiveCompression: true,
-			FileMethod:           archiver.Deflate,
-		}
 		archiveFilePath = workDir + ".zip"
+		archive = archiveZip
 	} else {
-		arch = &archiver.TarGz{
-			CompressionLevel: gzip.DefaultCompression,
-			Tar: &archiver.Tar{
-				MkdirAll: true,
-			},
-		}
 		archiveFilePath = workDir + ".tar.gz"
+		archive = archiveTarGz
 	}
-	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
-	err = arch.Archive([]string{workDir}, archiveFilePath)
+
+	f, err := os.Create(archiveFilePath)
 	if err != nil {
 		return "", err
 	}
+	defer f.Close()
+
+	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
+	if err := archive(workDir, f); err != nil {
+		return "", err
+	}
 	return archiveFilePath, nil
+}
+
+func archiveZip(sourceDir string, w io.Writer) error {
+	zipWriter := zip.NewWriter(w)
+	defer zipWriter.Close()
+
+	baseName := filepath.Base(sourceDir)
+
+	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		relPath, err := filepath.Rel(sourceDir, path)
+		if err != nil {
+			return err
+		}
+
+		archivePath := filepath.Join(baseName, relPath)
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+		header.Name = filepath.ToSlash(archivePath)
+		header.Method = zip.Deflate
+
+		if info.IsDir() {
+			header.Name += "/"
+			header.Method = zip.Store
+		}
+
+		writer, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(writer, file)
+		return err
+	})
+}
+
+func archiveTarGz(sourceDir string, w io.Writer) error {
+	gzipWriter := gzip.NewWriter(w)
+	defer gzipWriter.Close()
+
+	tarWriter := tar.NewWriter(gzipWriter)
+	defer tarWriter.Close()
+
+	baseName := filepath.Base(sourceDir)
+
+	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		relPath, err := filepath.Rel(sourceDir, path)
+		if err != nil {
+			return err
+		}
+
+		archivePath := filepath.Join(baseName, relPath)
+
+		header, err := tar.FileInfoHeader(info, "")
+		if err != nil {
+			return err
+		}
+		header.Name = filepath.ToSlash(archivePath)
+
+		if err := tarWriter.WriteHeader(header); err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(tarWriter, file)
+		return err
+	})
 }
