@@ -2,16 +2,13 @@ package goxz
 
 import (
 	"bytes"
-	"compress/flate"
-	"compress/gzip"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/mholt/archiver"
+	"github.com/mholt/archiver/v3"
 	"github.com/pkg/errors"
 )
 
@@ -128,7 +125,7 @@ func (bdr *builder) build() (string, error) {
 				pkg, bdr.platform.os, bdr.platform.arch, string(bs))
 		}
 	}
-	files, err := ioutil.ReadDir(workDir)
+	files, err := os.ReadDir(workDir)
 	if err != nil {
 		return "", err
 	}
@@ -148,24 +145,16 @@ func (bdr *builder) build() (string, error) {
 		}
 	}
 
-	var arch archiver.Archiver = &archiver.Zip{
-		CompressionLevel:     flate.DefaultCompression,
-		MkdirAll:             true,
-		SelectiveCompression: true,
-	}
-	archiveFilePath := workDir + ".zip"
+	var (
+		arch            archiver.Archiver = archiver.NewZip()
+		archiveFilePath                   = workDir + ".zip"
+	)
 	if !bdr.zipAlways && bdr.platform.os != "windows" && bdr.platform.os != "darwin" {
-		arch = &archiver.TarGz{
-			CompressionLevel: gzip.DefaultCompression,
-			Tar: &archiver.Tar{
-				MkdirAll: true,
-			},
-		}
+		arch = archiver.NewTarGz()
 		archiveFilePath = workDir + ".tar.gz"
 	}
 	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
-	err = arch.Archive([]string{workDir}, archiveFilePath)
-	if err != nil {
+	if err = arch.Archive([]string{workDir}, archiveFilePath); err != nil {
 		return "", err
 	}
 	return archiveFilePath, nil
