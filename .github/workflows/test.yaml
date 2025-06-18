@@ -14,12 +14,12 @@ jobs:
         - macOS-latest
     steps:
     - name: setup go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
         go-version: 1.x
     - name: checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: test
       run: go test -race -coverprofile coverage.out -covermode atomic
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v5
