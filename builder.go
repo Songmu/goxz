@@ -132,7 +132,7 @@ func (bdr *builder) build() (string, error) {
 		return "", err
 	}
 	if len(files) == 0 {
-		return "", fmt.Errorf("No binaries are built from [%s] for %s/%s",
+		return "", fmt.Errorf("no binaries are built from [%s] for %s/%s",
 			strings.Join(bdr.pkgs, " "), bdr.platform.os, bdr.platform.arch)
 	}
 
