@@ -21,10 +21,6 @@ test: deps
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
 
-.PHONY: release
-release: devel-deps
-	godzil release
-
 CREDITS: deps devel-deps go.sum
 	godzil credits -w
 
