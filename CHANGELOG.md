@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.11.0](https://github.com/Songmu/goxz/compare/v0.10.1...v0.11.0) - 2026-09-19
+
+- update deps by @Songmu in https://github.com/Songmu/goxz/pull/49
+- Add goxz GitHub Action by @Songmu in https://github.com/Songmu/goxz/pull/51
+- Use ghr action for releases by @Songmu in https://github.com/Songmu/goxz/pull/52
+- Prevent drift in release artifacts by @Songmu in https://github.com/Songmu/goxz/pull/53
+
 ## [v0.10.1](https://github.com/Songmu/goxz/compare/v0.10.0...v0.10.1) - 2025-06-18
 - drop mholt/archiver dependency by @Songmu in https://github.com/Songmu/goxz/pull/47
 - drop pkg/errors dependency by @Songmu in https://github.com/Songmu/goxz/pull/48
