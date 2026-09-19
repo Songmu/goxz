@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.11.1](https://github.com/Songmu/goxz/compare/v0.11.0...v0.11.1) - 2026-09-19
+
+- Rename action output to output-dir by @Songmu in https://github.com/Songmu/goxz/pull/54
+
 ## [v0.11.0](https://github.com/Songmu/goxz/compare/v0.10.1...v0.11.0) - 2026-09-19
 
 - update deps by @Songmu in https://github.com/Songmu/goxz/pull/49
