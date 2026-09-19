@@ -49,3 +49,4 @@
 	vPrefix = true
 	releaseBranch = main
 	versionFile = version.go,action.sh
+	release = draft
