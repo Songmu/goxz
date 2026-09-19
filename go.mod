@@ -1,7 +1,7 @@
 module github.com/Songmu/goxz
 
-go 1.23.0
+go 1.26.0
 
-toolchain go1.24.3
+toolchain go1.27.1
 
-require golang.org/x/sync v0.15.0
+require golang.org/x/sync v0.23.0
