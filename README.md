@@ -69,7 +69,7 @@ resources, build flags, static linking, and ZIP output can be configured:
     zip: true
 ```
 
-The action outputs the absolute `artifacts` directory path. The
+The action outputs the absolute directory path as `output-dir`. The
 `attestations: read` permission allows the action to verify the downloaded
 goxz binary. The `contents: read` permission is required by the checkout step.
 The action uses goxz's default `trimpath` behavior.

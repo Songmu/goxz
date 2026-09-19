@@ -45,9 +45,9 @@ inputs:
     required: false
     default: "false"
 outputs:
-  artifacts:
+  output-dir:
     description: Absolute path to the directory containing generated archives
-    value: ${{ steps.goxz.outputs.artifacts }}
+    value: ${{ steps.goxz.outputs.output-dir }}
 
 runs:
   using: composite

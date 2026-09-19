@@ -9,12 +9,12 @@ bash "$GITHUB_ACTION_PATH/install.sh" -b "$goxz_bin" "$goxz_version"
 
 module_directory="$(cd "$GOXZ_DIRECTORY" && pwd -P)"
 cd "$module_directory"
-artifacts="$GOXZ_DESTINATION"
-if [[ "$artifacts" != /* ]]; then
-  artifacts="$module_directory/$artifacts"
+output_dir="$GOXZ_DESTINATION"
+if [[ "$output_dir" != /* ]]; then
+  output_dir="$module_directory/$output_dir"
 fi
 
-args=(-d "$artifacts")
+args=(-d "$output_dir")
 if [[ -n "$GOXZ_PACKAGE_VERSION" ]]; then
   args+=(-pv "$GOXZ_PACKAGE_VERSION")
 fi
@@ -68,6 +68,6 @@ fi
 "$goxz" "${args[@]}" "${packages[@]}"
 
 if [[ "${RUNNER_OS:-}" == Windows ]]; then
-  artifacts="$(cygpath -m "$artifacts")"
+  output_dir="$(cygpath -m "$output_dir")"
 fi
-echo "artifacts=$artifacts" >> "$GITHUB_OUTPUT"
+echo "output-dir=$output_dir" >> "$GITHUB_OUTPUT"
