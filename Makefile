@@ -11,7 +11,6 @@ deps:
 .PHONY: devel-deps
 devel-deps: build
 	go install github.com/Songmu/godzil/cmd/godzil@latest
-	go install github.com/tcnksm/ghr@latest
 
 .PHONY: test
 test: deps
@@ -34,7 +33,3 @@ crossbuild: devel-deps
 				shasum -a 256 "$$file"; \
 			fi; \
 		done > SHA256SUMS
-
-.PHONY: upload
-upload:
-	ghr -body="$$(godzil changelog --latest -F markdown)" v$(VERSION) dist/v$(VERSION)
