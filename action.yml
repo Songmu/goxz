@@ -1,0 +1,77 @@
+name: Build release archives with goxz
+description: Install goxz and build cross-platform release archives
+author: Songmu
+
+inputs:
+  directory:
+    description: The directory containing the Go module
+    required: false
+    default: .
+  package-version:
+    description: The package version included in archive names
+    required: false
+  os:
+    description: Comma- or space-separated target operating systems
+    required: false
+  arch:
+    description: Comma- or space-separated target architectures
+    required: false
+  name:
+    description: Application name used in archive names
+    required: false
+  destination:
+    description: Destination directory for generated archives
+    required: false
+    default: goxz
+  packages:
+    description: Space-separated Go package patterns to build
+    required: false
+    default: .
+  include:
+    description: Additional comma- or space-separated resources to include
+    required: false
+  build-ldflags:
+    description: Arguments passed to each go tool link invocation
+    required: false
+  build-tags:
+    description: Space-separated Go build tags
+    required: false
+  static:
+    description: Build statically linked binaries
+    required: false
+    default: "false"
+  zip:
+    description: Use ZIP archives for every target operating system
+    required: false
+    default: "false"
+outputs:
+  artifacts:
+    description: Absolute path to the directory containing generated archives
+    value: ${{ steps.goxz.outputs.artifacts }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install and run goxz
+      id: goxz
+      shell: bash
+      run: bash "$GITHUB_ACTION_PATH/action.sh"
+      env:
+        # Authenticate gh attestation verify. Callers must grant attestations: read.
+        GH_TOKEN: ${{ github.token }}
+        GOXZ_DIRECTORY: ${{ inputs.directory }}
+        GOXZ_PACKAGE_VERSION: ${{ inputs.package-version }}
+        GOXZ_OS: ${{ inputs.os }}
+        GOXZ_ARCH: ${{ inputs.arch }}
+        GOXZ_NAME: ${{ inputs.name }}
+        GOXZ_DESTINATION: ${{ inputs.destination }}
+        GOXZ_PACKAGES: ${{ inputs.packages }}
+        GOXZ_INCLUDE: ${{ inputs.include }}
+        GOXZ_BUILD_LDFLAGS: ${{ inputs.build-ldflags }}
+        GOXZ_BUILD_TAGS: ${{ inputs.build-tags }}
+        GOXZ_STATIC: ${{ inputs.static }}
+        GOXZ_ZIP: ${{ inputs.zip }}
+
+branding:
+  icon: package
+  color: blue

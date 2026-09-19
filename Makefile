@@ -28,6 +28,12 @@ CREDITS: deps devel-deps go.sum
 crossbuild: devel-deps
 	./goxz -pv=v$(VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
         -d=./dist/v$(VERSION) ./cmd/goxz
+	cd ./dist/v$(VERSION) && \
+		for file in *; do \
+			if [ -f "$$file" ] && [ "$$file" != SHA256SUMS ]; then \
+				shasum -a 256 "$$file"; \
+			fi; \
+		done > SHA256SUMS
 
 .PHONY: upload
 upload:

@@ -28,6 +28,52 @@ You can also install goxz with [aqua](https://aquaproj.github.io/).
 
     % aqua g -i Songmu/goxz
 
+## GitHub Actions
+
+The action installs and runs goxz, building release archives into `goxz`:
+
+```yaml
+permissions:
+  attestations: read
+  contents: read
+
+steps:
+- uses: actions/checkout@v7
+- uses: actions/setup-go@v6
+  with:
+    go-version-file: go.mod
+- id: goxz
+  uses: Songmu/goxz@v0
+  with:
+    package-version: ${{ github.ref_name }}
+    packages: ./cmd/mytool
+```
+
+The project directory, target platforms, archive name, destination, included
+resources, build flags, static linking, and ZIP output can be configured:
+
+```yaml
+- uses: Songmu/goxz@v0
+  with:
+    directory: ./path/to/module
+    package-version: v1.2.3
+    os: linux,darwin,windows
+    arch: amd64,arm64
+    name: mytool
+    destination: dist
+    packages: ./cmd/mytool
+    include: NOTICE
+    build-ldflags: -s -w
+    build-tags: release
+    static: true
+    zip: true
+```
+
+The action outputs the absolute `artifacts` directory path. The
+`attestations: read` permission allows the action to verify the downloaded
+goxz binary. The `contents: read` permission is required by the checkout step.
+The action uses goxz's default `trimpath` behavior.
+
 ## Concept
 
 - Simple and Lightweight
