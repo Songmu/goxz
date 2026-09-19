@@ -50,3 +50,4 @@
 	releaseBranch = main
 	versionFile = version.go,action.sh
 	release = draft
+	command = make prepare-release

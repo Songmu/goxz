@@ -9,7 +9,7 @@ deps:
 	go mod tidy
 
 .PHONY: devel-deps
-devel-deps: build
+devel-deps:
 	go install github.com/Songmu/godzil/cmd/godzil@latest
 
 .PHONY: test
@@ -17,14 +17,20 @@ test: deps
 	go test
 
 .PHONY: build
-build: deps
+build:
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
 
-CREDITS: deps devel-deps go.sum
+.PHONY: prepare-release
+prepare-release: devel-deps
+	go mod tidy
 	godzil credits -w
+	git add go.mod CREDITS
+	if git ls-files --error-unmatch -- go.sum >/dev/null 2>&1 || test -f go.sum; then git add -A -- go.sum; fi
 
-.PHONY: CREDITS crossbuild
+.PHONY: crossbuild
 crossbuild: devel-deps
+	go mod tidy -diff
+	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
 	./goxz -pv=v$(VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
         -d=./dist/v$(VERSION) ./cmd/goxz
 	cd ./dist/v$(VERSION) && \
