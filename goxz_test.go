@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"io"
+	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"sort"
@@ -104,5 +106,45 @@ func TestGatherResources(t *testing.T) {
 	sort.Strings(out)
 	if !reflect.DeepEqual(out, expect) {
 		t.Errorf("something went wrong:\n  out: %v\nexpect: %v", out, expect)
+	}
+}
+
+func TestGitExecutableResources(t *testing.T) {
+	projDir := t.TempDir()
+	for _, name := range []string{"script.sh", "README", "untracked.sh"} {
+		if err := os.WriteFile(filepath.Join(projDir, name), []byte(name+"\n"), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, args := range [][]string{
+		{"init", "--quiet"},
+		{"add", "script.sh", "README", "untracked.sh"},
+		{"update-index", "--chmod=+x", "script.sh"},
+		{"update-index", "--chmod=-x", "README"},
+		{"reset", "--quiet", "untracked.sh"},
+	} {
+		cmd := exec.Command("git", args...)
+		cmd.Dir = projDir
+		if output, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v failed: %v\n%s", args, err, output)
+		}
+	}
+
+	resources := []string{
+		filepath.Join(projDir, "script.sh"),
+		filepath.Join(projDir, "README"),
+		filepath.Join(projDir, "untracked.sh"),
+	}
+	executable, err := gitExecutableResources(projDir, resources)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := executable[filepath.Join(projDir, "script.sh")]; !ok {
+		t.Error("script.sh is not executable")
+	}
+	for _, name := range []string{"README", "untracked.sh"} {
+		if _, ok := executable[filepath.Join(projDir, name)]; ok {
+			t.Errorf("%s is executable", name)
+		}
 	}
 }

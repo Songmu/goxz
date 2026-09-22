@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -20,7 +21,7 @@ func TestArchivesAreReproducible(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		archive func(string, io.Writer, time.Time) error
+		archive func(string, io.Writer, time.Time, map[string]struct{}) error
 		check   func(*testing.T, []byte, time.Time)
 	}{
 		{"zip", archiveZip, checkZipArchive},
@@ -29,10 +30,10 @@ func TestArchivesAreReproducible(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var firstArchive, secondArchive bytes.Buffer
-			if err := tt.archive(first, &firstArchive, timestamp); err != nil {
+			if err := tt.archive(first, &firstArchive, timestamp, fixtureExecutables(first)); err != nil {
 				t.Fatal(err)
 			}
-			if err := tt.archive(second, &secondArchive, timestamp); err != nil {
+			if err := tt.archive(second, &secondArchive, timestamp, fixtureExecutables(second)); err != nil {
 				t.Fatal(err)
 			}
 			if !bytes.Equal(firstArchive.Bytes(), secondArchive.Bytes()) {
@@ -52,7 +53,10 @@ func archiveFixture(t *testing.T, parent string, mtime time.Time) string {
 	if err := os.WriteFile(filepath.Join(dir, "README"), []byte("readme\n"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "bin", "tool"), []byte("binary\n"), 0700); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "bin", "tool"), []byte("binary\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "install.sh"), []byte("#!/bin/sh\n"), 0700); err != nil {
 		t.Fatal(err)
 	}
 	if err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -64,6 +68,13 @@ func archiveFixture(t *testing.T, parent string, mtime time.Time) string {
 		t.Fatal(err)
 	}
 	return dir
+}
+
+func fixtureExecutables(dir string) map[string]struct{} {
+	return map[string]struct{}{
+		filepath.Join(dir, "bin", "tool"): {},
+		filepath.Join(dir, "install.sh"):  {},
+	}
 }
 
 func checkZipArchive(t *testing.T, contents []byte, timestamp time.Time) {
@@ -82,7 +93,7 @@ func checkZipArchive(t *testing.T, contents []byte, timestamp time.Time) {
 			t.Errorf("%s: mode = %o, want %o", file.Name, file.Mode().Perm(), want)
 		}
 	}
-	assertArchiveNames(t, names, []string{"package/", "package/README", "package/bin/", "package/bin/tool"})
+	assertArchiveNames(t, names, []string{"package/", "package/README", "package/bin/", "package/bin/tool", "package/install.sh"})
 }
 
 func checkTarGzArchive(t *testing.T, contents []byte, timestamp time.Time) {
@@ -117,7 +128,7 @@ func checkTarGzArchive(t *testing.T, contents []byte, timestamp time.Time) {
 			t.Errorf("%s: mode = %o, want %o", header.Name, header.Mode, want)
 		}
 	}
-	assertArchiveNames(t, names, []string{"package", "package/README", "package/bin", "package/bin/tool"})
+	assertArchiveNames(t, names, []string{"package", "package/README", "package/bin", "package/bin/tool", "package/install.sh"})
 }
 
 func assertArchiveNames(t *testing.T, names, want []string) {
@@ -128,7 +139,8 @@ func assertArchiveNames(t *testing.T, names, want []string) {
 }
 
 func expectedArchiveMode(name string) os.FileMode {
-	if name == "package" || name == "package/" || name == "package/bin" || name == "package/bin/" || name == "package/bin/tool" {
+	if name == "package" || name == "package/" || name == "package/bin" || name == "package/bin/" ||
+		name == "package/bin/tool" || name == "package/install.sh" {
 		return 0755
 	}
 	return 0644
@@ -154,5 +166,16 @@ func TestArchiveTimestampFallsBackWhenUnavailable(t *testing.T) {
 	}
 	if !timestamp.IsZero() {
 		t.Errorf("timestamp = %s, want zero time", timestamp)
+	}
+}
+
+func TestArchiveTimestampRejectsInvalidSourceDateEpoch(t *testing.T) {
+	t.Setenv("SOURCE_DATE_EPOCH", "not-a-timestamp")
+	_, err := archiveTimestamp(t.TempDir())
+	if err == nil {
+		t.Fatal("archiveTimestamp() error = nil, want invalid SOURCE_DATE_EPOCH error")
+	}
+	if !strings.Contains(err.Error(), "invalid SOURCE_DATE_EPOCH") {
+		t.Errorf("archiveTimestamp() error = %q, want invalid SOURCE_DATE_EPOCH error", err)
 	}
 }

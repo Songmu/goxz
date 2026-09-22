@@ -1,8 +1,10 @@
 package goxz
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -34,11 +36,12 @@ type goxz struct {
 	work                                        bool
 	trimpath                                    bool
 
-	platforms        []*platform
-	projDir          string
-	workDir          string
-	resources        []string
-	archiveTimestamp time.Time
+	platforms           []*platform
+	projDir             string
+	workDir             string
+	resources           []string
+	executableResources map[string]struct{}
+	archiveTimestamp    time.Time
 }
 
 func (gx *goxz) run() error {
@@ -127,7 +130,14 @@ func (gx *goxz) init() error {
 	if err != nil {
 		return err
 	}
+	gx.executableResources, err = gitExecutableResources(gx.projDir, gx.resources)
+	if err != nil {
+		return err
+	}
 	gx.archiveTimestamp, err = archiveTimestamp(gx.projDir)
+	if err != nil {
+		return err
+	}
 	rBaseNames := make([]string, len(gx.resources))
 	for i, r := range gx.resources {
 		rBaseNames[i], _ = filepath.Rel(gx.projDir, r)
@@ -262,7 +272,7 @@ func archiveTimestamp(projDir string) (time.Time, error) {
 	if sourceDateEpoch := os.Getenv("SOURCE_DATE_EPOCH"); sourceDateEpoch != "" {
 		seconds, err := strconv.ParseInt(sourceDateEpoch, 10, 64)
 		if err != nil {
-			return time.Time{}, nil
+			return time.Time{}, fmt.Errorf("invalid SOURCE_DATE_EPOCH %q: %w", sourceDateEpoch, err)
 		}
 		return time.Unix(seconds, 0).UTC(), nil
 	}
@@ -279,25 +289,61 @@ func archiveTimestamp(projDir string) (time.Time, error) {
 	return time.Unix(seconds, 0).UTC(), nil
 }
 
+func gitExecutableResources(projDir string, resources []string) (map[string]struct{}, error) {
+	executableResources := make(map[string]struct{})
+	args := []string{"-C", projDir, "ls-files", "--stage", "-z", "--"}
+	for _, resource := range resources {
+		rel, err := filepath.Rel(projDir, resource)
+		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+			continue
+		}
+		args = append(args, filepath.ToSlash(rel))
+	}
+	if len(args) == 6 {
+		return executableResources, nil
+	}
+
+	output, err := exec.Command("git", args...).Output()
+	if err != nil {
+		return executableResources, nil
+	}
+	for _, entry := range bytes.Split(output, []byte{0}) {
+		if len(entry) == 0 {
+			continue
+		}
+		parts := bytes.SplitN(entry, []byte{'\t'}, 2)
+		fields := bytes.Fields(parts[0])
+		if len(parts) != 2 || len(fields) != 3 {
+			return nil, fmt.Errorf("unexpected git ls-files output: %q", entry)
+		}
+		if string(fields[0]) == "100755" {
+			path := filepath.Join(projDir, filepath.FromSlash(string(parts[1])))
+			executableResources[filepath.Clean(path)] = struct{}{}
+		}
+	}
+	return executableResources, nil
+}
+
 func (gx *goxz) builders() []*builder {
 	builders := make([]*builder, len(gx.platforms))
 	for i, pf := range gx.platforms {
 		builders[i] = &builder{
-			platform:           pf,
-			name:               gx.name,
-			version:            gx.version,
-			output:             gx.output,
-			buildLdFlags:       gx.buildLdFlags,
-			buildTags:          gx.buildTags,
-			buildInstallSuffix: gx.buildInstallSuffix,
-			pkgs:               gx.pkgs,
-			zipAlways:          gx.zipAlways,
-			static:             gx.static,
-			workDirBase:        gx.workDir,
-			trimpath:           gx.trimpath,
-			resources:          gx.resources,
-			projDir:            gx.projDir,
-			archiveTimestamp:   gx.archiveTimestamp,
+			platform:            pf,
+			name:                gx.name,
+			version:             gx.version,
+			output:              gx.output,
+			buildLdFlags:        gx.buildLdFlags,
+			buildTags:           gx.buildTags,
+			buildInstallSuffix:  gx.buildInstallSuffix,
+			pkgs:                gx.pkgs,
+			zipAlways:           gx.zipAlways,
+			static:              gx.static,
+			workDirBase:         gx.workDir,
+			trimpath:            gx.trimpath,
+			resources:           gx.resources,
+			executableResources: gx.executableResources,
+			projDir:             gx.projDir,
+			archiveTimestamp:    gx.archiveTimestamp,
 		}
 	}
 	return builders

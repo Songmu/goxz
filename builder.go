@@ -24,6 +24,7 @@ type builder struct {
 	workDirBase                                 string
 	zipAlways, static, trimpath                 bool
 	resources                                   []string
+	executableResources                         map[string]struct{}
 	projDir                                     string
 	archiveTimestamp                            time.Time
 }
@@ -39,6 +40,7 @@ func (bdr *builder) build() (string, error) {
 	if err := os.Mkdir(workDir, 0755); err != nil {
 		return "", err
 	}
+	executableFiles := make(map[string]struct{})
 
 	for _, pkg := range bdr.pkgs {
 		log.Printf("Building %s for %s/%s\n", pkg, bdr.platform.os, bdr.platform.arch)
@@ -66,7 +68,8 @@ func (bdr *builder) build() (string, error) {
 				output += ".exe"
 			}
 		}
-		cmdArgs := []string{"build", "-o", filepath.Join(workDir, output)}
+		outputPath := filepath.Join(workDir, output)
+		cmdArgs := []string{"build", "-o", outputPath}
 		// ref. https://github.com/golang/go/issues/26492#issuecomment-435462350
 		if bdr.buildLdFlags != "" || bdr.static {
 			var flags string
@@ -128,6 +131,7 @@ func (bdr *builder) build() (string, error) {
 				"go build failed while building %q for %s/%s with following output:\n%s: %v",
 				pkg, bdr.platform.os, bdr.platform.arch, string(bs), err)
 		}
+		executableFiles[filepath.Clean(outputPath)] = struct{}{}
 	}
 	files, err := os.ReadDir(workDir)
 	if err != nil {
@@ -147,10 +151,13 @@ func (bdr *builder) build() (string, error) {
 		if err := os.Link(rc, dest); err != nil {
 			return "", err
 		}
+		if _, executable := bdr.executableResources[filepath.Clean(rc)]; executable {
+			executableFiles[filepath.Clean(dest)] = struct{}{}
+		}
 	}
 
 	var archiveFilePath string
-	var archive func(sourceDir string, w io.Writer, timestamp time.Time) error
+	var archive func(sourceDir string, w io.Writer, timestamp time.Time, executableFiles map[string]struct{}) error
 	if bdr.zipAlways || bdr.platform.os == "windows" || bdr.platform.os == "darwin" {
 		archiveFilePath = workDir + ".zip"
 		archive = archiveZip
@@ -166,13 +173,13 @@ func (bdr *builder) build() (string, error) {
 	defer f.Close()
 
 	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
-	if err := archive(workDir, f, bdr.archiveTimestamp); err != nil {
+	if err := archive(workDir, f, bdr.archiveTimestamp, executableFiles); err != nil {
 		return "", err
 	}
 	return archiveFilePath, nil
 }
 
-func archiveZip(sourceDir string, w io.Writer, timestamp time.Time) error {
+func archiveZip(sourceDir string, w io.Writer, timestamp time.Time, executableFiles map[string]struct{}) error {
 	zipWriter := zip.NewWriter(w)
 	defer zipWriter.Close()
 
@@ -199,7 +206,8 @@ func archiveZip(sourceDir string, w io.Writer, timestamp time.Time) error {
 		header.Method = zip.Deflate
 		if reproducible {
 			header.Modified = timestamp
-			header.SetMode(archiveMode(info))
+			_, executable := executableFiles[filepath.Clean(path)]
+			header.SetMode(archiveMode(info, executable))
 		}
 
 		if info.IsDir() {
@@ -227,7 +235,7 @@ func archiveZip(sourceDir string, w io.Writer, timestamp time.Time) error {
 	})
 }
 
-func archiveTarGz(sourceDir string, w io.Writer, timestamp time.Time) error {
+func archiveTarGz(sourceDir string, w io.Writer, timestamp time.Time, executableFiles map[string]struct{}) error {
 	gzipWriter := gzip.NewWriter(w)
 	reproducible := !timestamp.IsZero()
 	if reproducible {
@@ -266,7 +274,8 @@ func archiveTarGz(sourceDir string, w io.Writer, timestamp time.Time) error {
 			header.Gid = 0
 			header.Uname = ""
 			header.Gname = ""
-			header.Mode = int64(archiveMode(info))
+			_, executable := executableFiles[filepath.Clean(path)]
+			header.Mode = int64(archiveMode(info, executable))
 		}
 
 		if err := tarWriter.WriteHeader(header); err != nil {
@@ -288,8 +297,8 @@ func archiveTarGz(sourceDir string, w io.Writer, timestamp time.Time) error {
 	})
 }
 
-func archiveMode(info os.FileInfo) os.FileMode {
-	if info.IsDir() || info.Mode()&0111 != 0 {
+func archiveMode(info os.FileInfo, executable bool) os.FileMode {
+	if info.IsDir() || executable {
 		return 0755
 	}
 	return 0644
