@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type builder struct {
@@ -24,6 +25,7 @@ type builder struct {
 	zipAlways, static, trimpath                 bool
 	resources                                   []string
 	projDir                                     string
+	archiveTimestamp                            time.Time
 }
 
 func (bdr *builder) build() (string, error) {
@@ -148,7 +150,7 @@ func (bdr *builder) build() (string, error) {
 	}
 
 	var archiveFilePath string
-	var archive func(sourceDir string, w io.Writer) error
+	var archive func(sourceDir string, w io.Writer, timestamp time.Time) error
 	if bdr.zipAlways || bdr.platform.os == "windows" || bdr.platform.os == "darwin" {
 		archiveFilePath = workDir + ".zip"
 		archive = archiveZip
@@ -164,13 +166,13 @@ func (bdr *builder) build() (string, error) {
 	defer f.Close()
 
 	log.Printf("Archiving %s\n", filepath.Base(archiveFilePath))
-	if err := archive(workDir, f); err != nil {
+	if err := archive(workDir, f, bdr.archiveTimestamp); err != nil {
 		return "", err
 	}
 	return archiveFilePath, nil
 }
 
-func archiveZip(sourceDir string, w io.Writer) error {
+func archiveZip(sourceDir string, w io.Writer, timestamp time.Time) error {
 	zipWriter := zip.NewWriter(w)
 	defer zipWriter.Close()
 
@@ -194,6 +196,8 @@ func archiveZip(sourceDir string, w io.Writer) error {
 		}
 		header.Name = filepath.ToSlash(archivePath)
 		header.Method = zip.Deflate
+		header.Modified = timestamp
+		header.SetMode(archiveMode(info))
 
 		if info.IsDir() {
 			header.Name += "/"
@@ -220,8 +224,10 @@ func archiveZip(sourceDir string, w io.Writer) error {
 	})
 }
 
-func archiveTarGz(sourceDir string, w io.Writer) error {
+func archiveTarGz(sourceDir string, w io.Writer, timestamp time.Time) error {
 	gzipWriter := gzip.NewWriter(w)
+	gzipWriter.ModTime = timestamp
+	gzipWriter.OS = 255
 	defer gzipWriter.Close()
 
 	tarWriter := tar.NewWriter(gzipWriter)
@@ -246,6 +252,14 @@ func archiveTarGz(sourceDir string, w io.Writer) error {
 			return err
 		}
 		header.Name = filepath.ToSlash(archivePath)
+		header.ModTime = timestamp
+		header.AccessTime = time.Time{}
+		header.ChangeTime = time.Time{}
+		header.Uid = 0
+		header.Gid = 0
+		header.Uname = ""
+		header.Gname = ""
+		header.Mode = int64(archiveMode(info))
 
 		if err := tarWriter.WriteHeader(header); err != nil {
 			return err
@@ -264,4 +278,11 @@ func archiveTarGz(sourceDir string, w io.Writer) error {
 		_, err = io.Copy(tarWriter, file)
 		return err
 	})
+}
+
+func archiveMode(info os.FileInfo) os.FileMode {
+	if info.IsDir() || info.Mode()&0111 != 0 {
+		return 0755
+	}
+	return 0644
 }

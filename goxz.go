@@ -6,9 +6,12 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -35,6 +38,7 @@ type goxz struct {
 	projDir   string
 	workDir   string
 	resources []string
+	archiveTimestamp time.Time
 }
 
 func (gx *goxz) run() error {
@@ -120,6 +124,10 @@ func (gx *goxz) init() error {
 	}
 
 	gx.resources, err = gx.gatherResources()
+	if err != nil {
+		return err
+	}
+	gx.archiveTimestamp, err = archiveTimestamp(gx.projDir)
 	if err != nil {
 		return err
 	}
@@ -253,6 +261,28 @@ func (gx *goxz) buildAll() error {
 	return eg.Wait()
 }
 
+func archiveTimestamp(projDir string) (time.Time, error) {
+	if sourceDateEpoch := os.Getenv("SOURCE_DATE_EPOCH"); sourceDateEpoch != "" {
+		seconds, err := strconv.ParseInt(sourceDateEpoch, 10, 64)
+		if err != nil {
+			return time.Time{}, fmt.Errorf("invalid SOURCE_DATE_EPOCH %q: %w", sourceDateEpoch, err)
+		}
+		return time.Unix(seconds, 0).UTC(), nil
+	}
+
+	cmd := exec.Command("git", "-C", projDir, "log", "-1", "--format=%ct")
+	output, err := cmd.Output()
+	if err != nil {
+		return time.Time{}, fmt.Errorf(
+			"determine archive timestamp from Git: set SOURCE_DATE_EPOCH when building outside a Git repository: %w", err)
+	}
+	seconds, err := strconv.ParseInt(strings.TrimSpace(string(output)), 10, 64)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("parse Git commit timestamp: %w", err)
+	}
+	return time.Unix(seconds, 0).UTC(), nil
+}
+
 func (gx *goxz) builders() []*builder {
 	builders := make([]*builder, len(gx.platforms))
 	for i, pf := range gx.platforms {
@@ -271,6 +301,7 @@ func (gx *goxz) builders() []*builder {
 			trimpath:           gx.trimpath,
 			resources:          gx.resources,
 			projDir:            gx.projDir,
+			archiveTimestamp:   gx.archiveTimestamp,
 		}
 	}
 	return builders

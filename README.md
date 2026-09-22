@@ -74,6 +74,20 @@ The action outputs the absolute directory path as `output-dir`. The
 goxz binary. The `contents: read` permission is required by the checkout step.
 The action uses goxz's default `trimpath` behavior.
 
+## Reproducible archives
+
+goxz creates reproducible ZIP and tar.gz archives when built from the same
+commit, with the same Go toolchain, dependencies, and build configuration. It
+uses the target commit timestamp for archive metadata. Set `SOURCE_DATE_EPOCH`
+(Unix seconds) to override that timestamp; this is required when building
+outside a Git repository, including from local changes not associated with a
+commit.
+
+Archive entry timestamps, ownership, and modes are normalized. `-trimpath` is
+enabled by default, but callers must also avoid embedding the current time in
+linker flags or generated inputs. CGO builds additionally require the same C
+compiler and libraries.
+
 ## Concept
 
 - Simple and Lightweight
