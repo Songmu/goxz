@@ -291,7 +291,7 @@ func archiveTimestamp(projDir string) (time.Time, error) {
 
 func gitExecutableResources(projDir string, resources []string) (map[string]struct{}, error) {
 	executableResources := make(map[string]struct{})
-	args := []string{"-C", projDir, "ls-files", "--stage", "-z", "--"}
+	args := []string{"-C", projDir, "--literal-pathspecs", "ls-files", "--stage", "-z", "--"}
 	for _, resource := range resources {
 		rel, err := filepath.Rel(projDir, resource)
 		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
@@ -299,7 +299,7 @@ func gitExecutableResources(projDir string, resources []string) (map[string]stru
 		}
 		args = append(args, filepath.ToSlash(rel))
 	}
-	if len(args) == 6 {
+	if len(args) == 7 {
 		return executableResources, nil
 	}
 

@@ -111,17 +111,15 @@ func TestGatherResources(t *testing.T) {
 
 func TestGitExecutableResources(t *testing.T) {
 	projDir := t.TempDir()
-	for _, name := range []string{"script.sh", "README", "untracked.sh"} {
+	for _, name := range []string{"script[1].sh", "script1.sh", ":script.sh", "README", "untracked.sh"} {
 		if err := os.WriteFile(filepath.Join(projDir, name), []byte(name+"\n"), 0600); err != nil {
 			t.Fatal(err)
 		}
 	}
 	for _, args := range [][]string{
 		{"init", "--quiet"},
-		{"add", "script.sh", "README", "untracked.sh"},
-		{"update-index", "--chmod=+x", "script.sh"},
-		{"update-index", "--chmod=-x", "README"},
-		{"reset", "--quiet", "untracked.sh"},
+		{"--literal-pathspecs", "add", "--", "script[1].sh", "script1.sh", ":script.sh", "README"},
+		{"--literal-pathspecs", "update-index", "--chmod=+x", "--", "script[1].sh", ":script.sh"},
 	} {
 		cmd := exec.Command("git", args...)
 		cmd.Dir = projDir
@@ -131,7 +129,9 @@ func TestGitExecutableResources(t *testing.T) {
 	}
 
 	resources := []string{
-		filepath.Join(projDir, "script.sh"),
+		filepath.Join(projDir, "script[1].sh"),
+		filepath.Join(projDir, "script1.sh"),
+		filepath.Join(projDir, ":script.sh"),
 		filepath.Join(projDir, "README"),
 		filepath.Join(projDir, "untracked.sh"),
 	}
@@ -139,10 +139,12 @@ func TestGitExecutableResources(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := executable[filepath.Join(projDir, "script.sh")]; !ok {
-		t.Error("script.sh is not executable")
+	for _, name := range []string{"script[1].sh", ":script.sh"} {
+		if _, ok := executable[filepath.Join(projDir, name)]; !ok {
+			t.Errorf("%s is not executable", name)
+		}
 	}
-	for _, name := range []string{"README", "untracked.sh"} {
+	for _, name := range []string{"script1.sh", "README", "untracked.sh"} {
 		if _, ok := executable[filepath.Join(projDir, name)]; ok {
 			t.Errorf("%s is executable", name)
 		}
