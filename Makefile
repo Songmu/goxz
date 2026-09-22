@@ -24,8 +24,7 @@ build:
 prepare-release: devel-deps
 	go mod tidy
 	godzil credits -w
-	git add go.mod CREDITS
-	if git ls-files --error-unmatch -- go.sum >/dev/null 2>&1 || test -f go.sum; then git add -A -- go.sum; fi
+	git update-index --add --remove -- go.mod go.sum CREDITS
 
 .PHONY: crossbuild
 crossbuild: devel-deps
