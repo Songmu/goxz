@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.12.0](https://github.com/Songmu/goxz/compare/v0.11.1...v0.12.0) - 2026-09-22
+
+- Make ZIP and tar.gz archives reproducible by @Songmu with @Copilot in https://github.com/Songmu/goxz/pull/56
+- Modernize release workflow by @Songmu in https://github.com/Songmu/goxz/pull/58
+- refine release flow with new install.sh by @Songmu in https://github.com/Songmu/goxz/pull/59
+
 ## [v0.11.1](https://github.com/Songmu/goxz/compare/v0.11.0...v0.11.1) - 2026-09-19
 
 - Rename action output to output-dir by @Songmu in https://github.com/Songmu/goxz/pull/54
