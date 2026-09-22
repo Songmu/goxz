@@ -145,3 +145,14 @@ func TestArchiveTimestampUsesSourceDateEpoch(t *testing.T) {
 		t.Errorf("timestamp = %s, want %s", timestamp, want)
 	}
 }
+
+func TestArchiveTimestampFallsBackWhenUnavailable(t *testing.T) {
+	t.Setenv("SOURCE_DATE_EPOCH", "")
+	timestamp, err := archiveTimestamp(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !timestamp.IsZero() {
+		t.Errorf("timestamp = %s, want zero time", timestamp)
+	}
+}

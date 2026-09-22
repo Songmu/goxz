@@ -3,7 +3,6 @@ package goxz
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -129,9 +128,6 @@ func (gx *goxz) init() error {
 		return err
 	}
 	gx.archiveTimestamp, err = archiveTimestamp(gx.projDir)
-	if err != nil {
-		return err
-	}
 	rBaseNames := make([]string, len(gx.resources))
 	for i, r := range gx.resources {
 		rBaseNames[i], _ = filepath.Rel(gx.projDir, r)
@@ -266,7 +262,7 @@ func archiveTimestamp(projDir string) (time.Time, error) {
 	if sourceDateEpoch := os.Getenv("SOURCE_DATE_EPOCH"); sourceDateEpoch != "" {
 		seconds, err := strconv.ParseInt(sourceDateEpoch, 10, 64)
 		if err != nil {
-			return time.Time{}, fmt.Errorf("invalid SOURCE_DATE_EPOCH %q: %w", sourceDateEpoch, err)
+			return time.Time{}, nil
 		}
 		return time.Unix(seconds, 0).UTC(), nil
 	}
@@ -274,12 +270,11 @@ func archiveTimestamp(projDir string) (time.Time, error) {
 	cmd := exec.Command("git", "-C", projDir, "log", "-1", "--format=%ct")
 	output, err := cmd.Output()
 	if err != nil {
-		return time.Time{}, fmt.Errorf(
-			"determine archive timestamp from Git: set SOURCE_DATE_EPOCH when building outside a Git repository: %w", err)
+		return time.Time{}, nil
 	}
 	seconds, err := strconv.ParseInt(strings.TrimSpace(string(output)), 10, 64)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("parse Git commit timestamp: %w", err)
+		return time.Time{}, nil
 	}
 	return time.Unix(seconds, 0).UTC(), nil
 }

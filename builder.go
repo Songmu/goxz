@@ -177,6 +177,7 @@ func archiveZip(sourceDir string, w io.Writer, timestamp time.Time) error {
 	defer zipWriter.Close()
 
 	baseName := filepath.Base(sourceDir)
+	reproducible := !timestamp.IsZero()
 
 	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -196,8 +197,10 @@ func archiveZip(sourceDir string, w io.Writer, timestamp time.Time) error {
 		}
 		header.Name = filepath.ToSlash(archivePath)
 		header.Method = zip.Deflate
-		header.Modified = timestamp
-		header.SetMode(archiveMode(info))
+		if reproducible {
+			header.Modified = timestamp
+			header.SetMode(archiveMode(info))
+		}
 
 		if info.IsDir() {
 			header.Name += "/"
@@ -226,8 +229,11 @@ func archiveZip(sourceDir string, w io.Writer, timestamp time.Time) error {
 
 func archiveTarGz(sourceDir string, w io.Writer, timestamp time.Time) error {
 	gzipWriter := gzip.NewWriter(w)
-	gzipWriter.ModTime = timestamp
-	gzipWriter.OS = 255
+	reproducible := !timestamp.IsZero()
+	if reproducible {
+		gzipWriter.ModTime = timestamp
+		gzipWriter.OS = 255
+	}
 	defer gzipWriter.Close()
 
 	tarWriter := tar.NewWriter(gzipWriter)
@@ -252,14 +258,16 @@ func archiveTarGz(sourceDir string, w io.Writer, timestamp time.Time) error {
 			return err
 		}
 		header.Name = filepath.ToSlash(archivePath)
-		header.ModTime = timestamp
-		header.AccessTime = time.Time{}
-		header.ChangeTime = time.Time{}
-		header.Uid = 0
-		header.Gid = 0
-		header.Uname = ""
-		header.Gname = ""
-		header.Mode = int64(archiveMode(info))
+		if reproducible {
+			header.ModTime = timestamp
+			header.AccessTime = time.Time{}
+			header.ChangeTime = time.Time{}
+			header.Uid = 0
+			header.Gid = 0
+			header.Uname = ""
+			header.Gname = ""
+			header.Mode = int64(archiveMode(info))
+		}
 
 		if err := tarWriter.WriteHeader(header); err != nil {
 			return err
