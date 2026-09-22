@@ -82,7 +82,7 @@ func checkZipArchive(t *testing.T, contents []byte, timestamp time.Time) {
 			t.Errorf("%s: mode = %o, want %o", file.Name, file.Mode().Perm(), want)
 		}
 	}
-	assertArchiveNames(t, names)
+	assertArchiveNames(t, names, []string{"package/", "package/README", "package/bin/", "package/bin/tool"})
 }
 
 func checkTarGzArchive(t *testing.T, contents []byte, timestamp time.Time) {
@@ -117,19 +117,18 @@ func checkTarGzArchive(t *testing.T, contents []byte, timestamp time.Time) {
 			t.Errorf("%s: mode = %o, want %o", header.Name, header.Mode, want)
 		}
 	}
-	assertArchiveNames(t, names)
+	assertArchiveNames(t, names, []string{"package", "package/README", "package/bin", "package/bin/tool"})
 }
 
-func assertArchiveNames(t *testing.T, names []string) {
+func assertArchiveNames(t *testing.T, names, want []string) {
 	t.Helper()
-	want := []string{"package/", "package/README", "package/bin/", "package/bin/tool"}
 	if !reflect.DeepEqual(names, want) {
 		t.Errorf("entry order = %v, want %v", names, want)
 	}
 }
 
 func expectedArchiveMode(name string) os.FileMode {
-	if name == "package/" || name == "package/bin/" || name == "package/bin/tool" {
+	if name == "package" || name == "package/" || name == "package/bin" || name == "package/bin/" || name == "package/bin/tool" {
 		return 0755
 	}
 	return 0644

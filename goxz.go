@@ -3,6 +3,7 @@ package goxz
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -34,10 +35,10 @@ type goxz struct {
 	work                                        bool
 	trimpath                                    bool
 
-	platforms []*platform
-	projDir   string
-	workDir   string
-	resources []string
+	platforms        []*platform
+	projDir          string
+	workDir          string
+	resources        []string
 	archiveTimestamp time.Time
 }
 
