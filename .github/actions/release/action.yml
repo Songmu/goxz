@@ -16,7 +16,7 @@ runs:
       go-version-file: go.mod
   - name: release
     run: |
-      make crossbuild
+      make crossbuild PACKAGE_VERSION=${{ inputs.tag }}
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
@@ -28,7 +28,7 @@ runs:
     with:
       tag: ${{ inputs.tag }}
       token: ${{ inputs.token }}
-      path: "dist/${{ inputs.tag }}"
+      path: dist
   - uses: haya14busa/action-update-semver@7d2c558640ea49e798d46539536190aff8c18715 # v1.5.1
     with:
       github_token: ${{ inputs.token }}

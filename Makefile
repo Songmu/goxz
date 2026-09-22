@@ -1,4 +1,3 @@
-VERSION = $(shell godzil show-version)
 CURRENT_REVISION = $(shell git rev-parse --short HEAD)
 BUILD_LDFLAGS = "-X github.com/Songmu/goxz.revision=$(CURRENT_REVISION)"
 u := $(if $(update),-u)
@@ -10,7 +9,7 @@ deps:
 
 .PHONY: devel-deps
 devel-deps:
-	go install github.com/Songmu/godzil/cmd/godzil@latest
+	go install github.com/Songmu/gocredits/cmd/gocredits@v0.5.0
 
 .PHONY: test
 test: deps
@@ -23,14 +22,14 @@ build:
 .PHONY: prepare-release
 prepare-release: devel-deps
 	go mod tidy
-	godzil credits -w
+	gocredits . > CREDITS
 	git update-index --add --remove -- go.mod go.sum CREDITS
 
 .PHONY: crossbuild
-crossbuild: devel-deps
+crossbuild:
 	go mod tidy -diff
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
-	./goxz -pv=v$(VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
-        -d=./dist/v$(VERSION) ./cmd/goxz
-	cd ./dist/v$(VERSION) && \
+	./goxz -pv=$(PACKAGE_VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
+		-d=./dist ./cmd/goxz
+	cd ./dist && \
 		shasum -a 256 -- * > SHA256SUMS
