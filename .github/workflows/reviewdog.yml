@@ -5,8 +5,8 @@ jobs:
     name: staticcheck
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: reviewdog/action-staticcheck@v1
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: reviewdog/action-staticcheck@b2a168b3ea66e3b3d98cc693883d2bc18bc1bffc # v1.32.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         reporter: github-pr-review
