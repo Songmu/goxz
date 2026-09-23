@@ -44,6 +44,10 @@ inputs:
     description: Use ZIP archives for every target operating system
     required: false
     default: "false"
+  checksum:
+    description: Generate a SHA-256 manifest; use true for SHA256SUMS or provide a Go filename template
+    required: false
+    default: "false"
 outputs:
   output-dir:
     description: Absolute path to the directory containing generated archives
@@ -71,6 +75,7 @@ runs:
         GOXZ_BUILD_TAGS: ${{ inputs.build-tags }}
         GOXZ_STATIC: ${{ inputs.static }}
         GOXZ_ZIP: ${{ inputs.zip }}
+        GOXZ_CHECKSUM: ${{ inputs.checksum }}
 
 branding:
   icon: package

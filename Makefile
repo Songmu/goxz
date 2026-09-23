@@ -30,6 +30,4 @@ crossbuild:
 	go mod tidy -diff
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
 	./goxz -pv=$(PACKAGE_VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
-		-d=./dist ./cmd/goxz
-	cd ./dist && \
-		shasum -a 256 -- * > SHA256SUMS
+		-d=./dist --checksum ./cmd/goxz
