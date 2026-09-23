@@ -1,5 +1,6 @@
 CURRENT_REVISION = $(shell git rev-parse --short HEAD)
-BUILD_LDFLAGS = "-X github.com/Songmu/goxz.revision=$(CURRENT_REVISION)"
+BUILD_LDFLAGS = -X github.com/Songmu/goxz.revision=$(CURRENT_REVISION)
+RELEASE_BUILD_LDFLAGS = -s -w $(BUILD_LDFLAGS)
 u := $(if $(update),-u)
 
 .PHONY: deps
@@ -17,7 +18,7 @@ test: deps
 
 .PHONY: build
 build:
-	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
+	go build -ldflags="$(BUILD_LDFLAGS)" ./cmd/goxz
 
 .PHONY: prepare-release
 prepare-release: devel-deps
@@ -28,6 +29,6 @@ prepare-release: devel-deps
 .PHONY: crossbuild
 crossbuild:
 	go mod tidy -diff
-	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/goxz
-	./goxz -pv=$(PACKAGE_VERSION) -static -build-ldflags=$(BUILD_LDFLAGS) \
+	go build -ldflags="$(RELEASE_BUILD_LDFLAGS)" ./cmd/goxz
+	./goxz -pv=$(PACKAGE_VERSION) -static -build-ldflags="$(RELEASE_BUILD_LDFLAGS)" \
 		-d=./dist --checksum ./cmd/goxz

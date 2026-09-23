@@ -21,23 +21,11 @@ jobs:
       uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
       with:
         go-version-file: go.mod
-    - name: prepare release build
-      id: build
-      run: |
-        echo "revision=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
     - name: build release archives
       id: goxz
       run: |
-        ldflags="-s -w -X github.com/Songmu/goxz.revision=${{ steps.build.outputs.revision }}"
-        go build -ldflags="$ldflags" -o "$RUNNER_TEMP/goxz" ./cmd/goxz
-        "$RUNNER_TEMP/goxz" \
-          -pv="${{ github.ref_name }}" \
-          -os=linux,darwin,windows \
-          -static \
-          -build-ldflags="$ldflags" \
-          --checksum \
-          ./cmd/goxz
-        echo "output-dir=$PWD/goxz" >> "$GITHUB_OUTPUT"
+        make crossbuild PACKAGE_VERSION="${{ github.ref_name }}"
+        echo "output-dir=$PWD/dist" >> "$GITHUB_OUTPUT"
     - name: attest build provenance
       uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
       with:
