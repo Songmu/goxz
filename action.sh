@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-goxz_version="v0.12.0"
+goxz_version="v0.13.0"
 goxz_bin="$(mktemp -d "${RUNNER_TEMP%/}/goxz-bin.XXXXXX")"
 trap 'rm -rf "$goxz_bin"' EXIT
 

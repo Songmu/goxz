@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.13.0](https://github.com/Songmu/goxz/compare/v0.12.0...v0.13.0) - 2026-09-23
+
+- refine GitHub Actions workflows by @Songmu in https://github.com/Songmu/goxz/pull/60
+- Add checksum manifest generation by @Songmu in https://github.com/Songmu/goxz/pull/62
+
 ## [v0.12.0](https://github.com/Songmu/goxz/compare/v0.11.1...v0.12.0) - 2026-09-22
 
 - Make ZIP and tar.gz archives reproducible by @Songmu with @Copilot in https://github.com/Songmu/goxz/pull/56
