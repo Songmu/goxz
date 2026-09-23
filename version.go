@@ -1,5 +1,5 @@
 package goxz
 
-const version = "0.12.0"
+const version = "0.13.0"
 
 var revision = "HEAD"
