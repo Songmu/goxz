@@ -59,6 +59,16 @@ case "$GOXZ_ZIP" in
     exit 1
     ;;
 esac
+case "$GOXZ_CHECKSUM" in
+  true)
+    args+=(--checksum)
+    ;;
+  false|"")
+    ;;
+  *)
+    args+=("--checksum=$GOXZ_CHECKSUM")
+    ;;
+esac
 
 read -r -a packages <<< "$GOXZ_PACKAGES"
 goxz="$goxz_bin/goxz"

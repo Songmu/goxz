@@ -2,7 +2,9 @@ package goxz
 
 import (
 	"context"
+	"crypto/sha256"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -106,6 +108,93 @@ func TestGatherResources(t *testing.T) {
 	sort.Strings(out)
 	if !reflect.DeepEqual(out, expect) {
 		t.Errorf("something went wrong:\n  out: %v\nexpect: %v", out, expect)
+	}
+}
+
+func TestInitChecksumFileName(t *testing.T) {
+	tests := []struct {
+		name    string
+		pattern string
+		want    string
+		wantErr bool
+	}{
+		{
+			name:    "default",
+			pattern: defaultChecksumFileName,
+			want:    defaultChecksumFileName,
+		},
+		{
+			name:    "template",
+			pattern: "{{.Name}}_{{.Version}}_checksums.txt",
+			want:    "goxz_v1.2.3_checksums.txt",
+		},
+		{name: "malformed template", pattern: "{{", wantErr: true},
+		{name: "unknown field", pattern: "{{.Missing}}", wantErr: true},
+		{name: "empty filename", pattern: "", wantErr: true},
+		{name: "parent path", pattern: "../SHA256SUMS", wantErr: true},
+		{name: "subdirectory", pattern: "checksums/SHA256SUMS", wantErr: true},
+		{name: "windows subdirectory", pattern: `checksums\SHA256SUMS`, wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gx := &goxz{
+				name:     "goxz",
+				version:  "v1.2.3",
+				checksum: checksumFlag{enabled: true, pattern: tt.pattern},
+			}
+			err := gx.initChecksumFileName()
+			if tt.wantErr {
+				if err == nil {
+					t.Fatal("initChecksumFileName() error = nil")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if gx.checksumFileName != tt.want {
+				t.Errorf("checksumFileName = %q, want %q", gx.checksumFileName, tt.want)
+			}
+		})
+	}
+}
+
+func TestWriteChecksumManifest(t *testing.T) {
+	dest := t.TempDir()
+	archives := []struct {
+		name    string
+		content string
+	}{
+		{name: "z.zip", content: "zip"},
+		{name: "a.tar.gz", content: "tar"},
+	}
+	var paths []string
+	for _, archive := range archives {
+		path := filepath.Join(dest, archive.name)
+		if err := os.WriteFile(path, []byte(archive.content), 0644); err != nil {
+			t.Fatal(err)
+		}
+		paths = append(paths, path)
+	}
+	if err := os.WriteFile(filepath.Join(dest, "stale.txt"), []byte("stale"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	gx := &goxz{dest: dest, checksumFileName: defaultChecksumFileName}
+	if err := gx.writeChecksumManifest(paths); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(filepath.Join(dest, defaultChecksumFileName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := fmt.Sprintf(
+		"%x  a.tar.gz\n%x  z.zip\n",
+		sha256.Sum256([]byte("tar")),
+		sha256.Sum256([]byte("zip")),
+	)
+	if string(got) != want {
+		t.Errorf("checksum manifest = %q, want %q", got, want)
 	}
 }
 

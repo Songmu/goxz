@@ -1,8 +1,11 @@
 package goxz
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
@@ -85,7 +88,7 @@ func TestCliRun(t *testing.T) {
 		},
 		{
 			name:   "[error] package not exists",
-			input:  []string{"-work", "./testdata/hello___"},
+			input:  []string{"-work", "--checksum", "./testdata/hello___"},
 			errStr: "go list failed with following output",
 		},
 	}
@@ -170,4 +173,96 @@ func TestCliRun_projDir(t *testing.T) {
 		t.Errorf("files are not built correctly\n   out: %v\nexpect: %v", outs, builtFiles)
 	}
 
+}
+
+func TestParseArgs_checksum(t *testing.T) {
+	tests := []struct {
+		name    string
+		args    []string
+		enabled bool
+		pattern string
+	}{
+		{name: "omitted"},
+		{name: "bare", args: []string{"--checksum"}, enabled: true, pattern: defaultChecksumFileName},
+		{name: "true", args: []string{"--checksum=true"}, enabled: true, pattern: defaultChecksumFileName},
+		{name: "false", args: []string{"--checksum=false"}},
+		{
+			name:    "template",
+			args:    []string{"--checksum={{.Name}}_{{.Version}}_checksums.txt"},
+			enabled: true,
+			pattern: "{{.Name}}_{{.Version}}_checksums.txt",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cl := &cli{outStream: io.Discard, errStream: io.Discard}
+			gx, err := cl.parseArgs(tt.args)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if gx.checksum.enabled != tt.enabled || gx.checksum.pattern != tt.pattern {
+				t.Errorf("checksum = %#v, want enabled=%t pattern=%q", gx.checksum, tt.enabled, tt.pattern)
+			}
+		})
+	}
+}
+
+func TestCliRun_checksum(t *testing.T) {
+	tests := []struct {
+		name         string
+		checksumArg  string
+		version      string
+		manifestName string
+	}{
+		{
+			name:         "default filename",
+			checksumArg:  "--checksum",
+			manifestName: defaultChecksumFileName,
+		},
+		{
+			name:         "filename template",
+			checksumArg:  "--checksum={{.Name}}_{{.Version}}_checksums.txt",
+			version:      "v1.2.3",
+			manifestName: "hello_v1.2.3_checksums.txt",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dest := t.TempDir()
+			if err := os.WriteFile(filepath.Join(dest, "stale.txt"), []byte("stale"), 0644); err != nil {
+				t.Fatal(err)
+			}
+
+			cl := &cli{outStream: io.Discard, errStream: io.Discard}
+			err := cl.run([]string{
+				"-d", dest,
+				"-n", "hello",
+				"-pv", tt.version,
+				"-os", "linux",
+				"-arch", "amd64",
+				tt.checksumArg,
+				"./testdata/hello",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			archiveName := "hello_linux_amd64.tar.gz"
+			if tt.version != "" {
+				archiveName = "hello_" + tt.version + "_linux_amd64.tar.gz"
+			}
+			archive, err := os.ReadFile(filepath.Join(dest, archiveName))
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := fmt.Sprintf("%x  %s\n", sha256.Sum256(archive), archiveName)
+			got, err := os.ReadFile(filepath.Join(dest, tt.manifestName))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(got) != want {
+				t.Errorf("checksum manifest = %q, want %q", got, want)
+			}
+		})
+	}
 }

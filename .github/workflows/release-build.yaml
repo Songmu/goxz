@@ -21,25 +21,11 @@ jobs:
       uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
       with:
         go-version-file: go.mod
-    - name: prepare release build
-      id: build
-      run: |
-        echo "revision=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
     - name: build release archives
       id: goxz
-      uses: Songmu/goxz@ca593d878bfc0fe683ab80243fad53aeef4bcbfd # v0.11.1
-      with:
-        package-version: ${{ github.ref_name }}
-        os: linux,darwin,windows
-        packages: ./cmd/goxz
-        build-ldflags: -s -w -X github.com/Songmu/goxz.revision=${{ steps.build.outputs.revision }}
-        static: "true"
-    - name: generate checksums
-      env:
-        OUTPUT_DIR: ${{ steps.goxz.outputs.output-dir }}
       run: |
-        cd "$OUTPUT_DIR"
-        shasum -a 256 -- * > SHA256SUMS
+        make crossbuild PACKAGE_VERSION="${{ github.ref_name }}"
+        echo "output-dir=$PWD/dist" >> "$GITHUB_OUTPUT"
     - name: attest build provenance
       uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
       with:

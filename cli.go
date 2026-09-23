@@ -55,6 +55,7 @@ Options:
 	fs.StringVar(&gx.buildInstallSuffix, "build-installsuffix", "", "a space-separated list of build `installsuffix`")
 	fs.BoolVar(&gx.zipAlways, "z", false, "zip always")
 	fs.StringVar(&gx.projDir, "C", "", "specify the project directory. cwd by default")
+	fs.Var(&gx.checksum, "checksum", "generate a SHA-256 checksum manifest (default filename: SHA256SUMS; optional Go template fields: .Name, .Version)")
 
 	fs.BoolVar(&gx.static, "static", false, "build statically linked binary")
 	fs.BoolVar(&gx.work, "work", false, "[for debug] print the name of the temporary work directory and do not delete it when exiting.")

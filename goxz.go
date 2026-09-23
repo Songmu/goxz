@@ -1,8 +1,10 @@
 package goxz
 
 import (
+	"bufio"
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
@@ -11,8 +13,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -35,6 +39,7 @@ type goxz struct {
 	static                                      bool
 	work                                        bool
 	trimpath                                    bool
+	checksum                                    checksumFlag
 
 	platforms           []*platform
 	projDir             string
@@ -42,6 +47,43 @@ type goxz struct {
 	resources           []string
 	executableResources map[string]struct{}
 	archiveTimestamp    time.Time
+	checksumFileName    string
+}
+
+const defaultChecksumFileName = "SHA256SUMS"
+
+type checksumFlag struct {
+	enabled bool
+	pattern string
+}
+
+func (f *checksumFlag) Set(value string) error {
+	switch value {
+	case "true":
+		f.enabled = true
+		f.pattern = defaultChecksumFileName
+	case "false":
+		f.enabled = false
+		f.pattern = ""
+	default:
+		f.enabled = true
+		f.pattern = value
+	}
+	return nil
+}
+
+func (f *checksumFlag) String() string {
+	if !f.enabled {
+		return "false"
+	}
+	if f.pattern == defaultChecksumFileName {
+		return "true"
+	}
+	return f.pattern
+}
+
+func (f *checksumFlag) IsBoolFlag() bool {
+	return true
 }
 
 func (gx *goxz) run() error {
@@ -72,11 +114,17 @@ func (gx *goxz) run() error {
 		}
 		defer os.Chdir(wd)
 	}
-	err = gx.buildAll()
-	if err == nil {
-		log.Println("Success!")
+	archivePaths, err := gx.buildAll()
+	if err != nil {
+		return err
 	}
-	return err
+	if gx.checksum.enabled {
+		if err := gx.writeChecksumManifest(archivePaths); err != nil {
+			return err
+		}
+	}
+	log.Println("Success!")
+	return nil
 }
 
 func (gx *goxz) init() error {
@@ -104,6 +152,9 @@ func (gx *goxz) init() error {
 
 	if gx.name == "" {
 		gx.name = filepath.Base(gx.projDir)
+	}
+	if err := gx.initChecksumFileName(); err != nil {
+		return err
 	}
 
 	if err := gx.initDest(); err != nil {
@@ -247,10 +298,12 @@ func (gx *goxz) gatherResources() ([]string, error) {
 	return ret2, nil
 }
 
-func (gx *goxz) buildAll() error {
+func (gx *goxz) buildAll() ([]string, error) {
 	eg := errgroup.Group{}
-	for _, bdr := range gx.builders() {
-		bdr := bdr
+	builders := gx.builders()
+	archivePaths := make([]string, len(builders))
+	for i, bdr := range builders {
+		i, bdr := i, bdr
 		eg.Go(func() error {
 			archivePath, err := bdr.build()
 			if err != nil {
@@ -261,11 +314,112 @@ func (gx *goxz) buildAll() error {
 			if err != nil {
 				return err
 			}
+			archivePaths[i] = installPath
 			log.Printf("Artifact archived to %s\n", installPath)
 			return nil
 		})
 	}
-	return eg.Wait()
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+	return archivePaths, nil
+}
+
+func (gx *goxz) initChecksumFileName() error {
+	if !gx.checksum.enabled {
+		return nil
+	}
+	tmpl, err := template.New("checksum filename").Option("missingkey=error").Parse(gx.checksum.pattern)
+	if err != nil {
+		return fmt.Errorf("invalid checksum filename template: %w", err)
+	}
+	var name strings.Builder
+	if err := tmpl.Execute(&name, struct {
+		Name    string
+		Version string
+	}{
+		Name:    gx.name,
+		Version: gx.version,
+	}); err != nil {
+		return fmt.Errorf("render checksum filename template: %w", err)
+	}
+	gx.checksumFileName = name.String()
+	if gx.checksumFileName == "" {
+		return errors.New("checksum filename must not be empty")
+	}
+	if gx.checksumFileName == "." || gx.checksumFileName == ".." ||
+		filepath.IsAbs(gx.checksumFileName) ||
+		strings.ContainsAny(gx.checksumFileName, `/\`) ||
+		strings.ContainsRune(gx.checksumFileName, 0) {
+		return fmt.Errorf("checksum filename must be a basename: %q", gx.checksumFileName)
+	}
+	return nil
+}
+
+func (gx *goxz) writeChecksumManifest(archivePaths []string) error {
+	sort.Slice(archivePaths, func(i, j int) bool {
+		return filepath.Base(archivePaths[i]) < filepath.Base(archivePaths[j])
+	})
+	for _, archivePath := range archivePaths {
+		if filepath.Base(archivePath) == gx.checksumFileName {
+			return fmt.Errorf("checksum filename conflicts with archive: %q", gx.checksumFileName)
+		}
+	}
+
+	tmp, err := os.CreateTemp(gx.dest, "."+gx.checksumFileName+".tmp-*")
+	if err != nil {
+		return fmt.Errorf("create checksum manifest: %w", err)
+	}
+	tmpPath := tmp.Name()
+	renamed := false
+	defer func() {
+		if !renamed {
+			os.Remove(tmpPath)
+		}
+	}()
+
+	writer := bufio.NewWriter(tmp)
+	for _, archivePath := range archivePaths {
+		file, err := os.Open(archivePath)
+		if err != nil {
+			tmp.Close()
+			return fmt.Errorf("open archive for checksum %q: %w", archivePath, err)
+		}
+		hash := sha256.New()
+		_, copyErr := io.Copy(hash, file)
+		closeErr := file.Close()
+		if copyErr != nil {
+			tmp.Close()
+			return fmt.Errorf("hash archive %q: %w", archivePath, copyErr)
+		}
+		if closeErr != nil {
+			tmp.Close()
+			return fmt.Errorf("close archive %q: %w", archivePath, closeErr)
+		}
+		if _, err := fmt.Fprintf(writer, "%x  %s\n", hash.Sum(nil), filepath.Base(archivePath)); err != nil {
+			tmp.Close()
+			return fmt.Errorf("write checksum manifest: %w", err)
+		}
+	}
+	if err := writer.Flush(); err != nil {
+		tmp.Close()
+		return fmt.Errorf("flush checksum manifest: %w", err)
+	}
+	if err := tmp.Chmod(0644); err != nil {
+		tmp.Close()
+		return fmt.Errorf("set checksum manifest mode: %w", err)
+	}
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("close checksum manifest: %w", err)
+	}
+
+	manifestPath := filepath.Join(gx.dest, gx.checksumFileName)
+	if err := os.Rename(tmpPath, manifestPath); err != nil {
+		return fmt.Errorf("install checksum manifest: %w", err)
+	}
+	renamed = true
+	log.Printf("Checksum manifest written to %s\n", manifestPath)
+	return nil
 }
 
 func archiveTimestamp(projDir string) (time.Time, error) {
